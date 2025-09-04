@@ -2,7 +2,7 @@
 let settingMenu=document.getElementById("setting-menu");
 
 settingMenu.innerHTML=settingMenu.innerHTML+'<a href="#" onclick="tongbuData()">📤 同步数据</a>';
-let userid=localStorage.getItem("userid");
+var userid=localStorage.getItem("userid");
 async function tongbuData(){
 	let data=await getData();
 	console.log(data)
