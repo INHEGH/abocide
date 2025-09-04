@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地记事本</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+<!-- Include the highlight.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --header-height: 10%;
+            --nav-width: 15%;
+            --primary-color: #4CAF50;
+            --header-bg: #f5f5f5;
+            --nav-bg: #ffffff;
+            --main-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #ddd;
+            --hover-bg: #f0f0f0;
+        }
+
+        .dark-mode {
+            --header-bg: #2c3e50;
+            --nav-bg: #34495e;
+            --main-bg: #2c3e50;
+            --text-color: #ecf0f1;
+            --border-color: #4a5f7a;
+            --hover-bg: #3d566e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-color);
+            background-color: var(--main-bg);
+            transition: background-color 0.3s ease;
+        }
+
+        /* 头部样式 */
+        .header {
+            height: var(--header-height);
+            background-color: var(--header-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-color);
+            position: absolute;
+            left: 20px;
+        }
+
+        .header-date {
+            text-align: center;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .date-time-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .date-display {
+            white-space: nowrap;
+        }
+
+        .header-actions {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-icon {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .action-icon:hover {
+            opacity: 0.8;
+        }
+
+        /* 下拉菜单 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--nav-bg);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            margin-top: 5px;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .dropdown.show .dropdown-content {
+            display: block;
+        }
+
+        /* 主容器 */
+        .container {
+            display: flex;
+            height: calc(100vh - var(--header-height));
+        }
+
+        /* 导航栏 */
+        .nav-container {
+            width: var(--nav-width);
+            background-color: var(--nav-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-hidden .nav-container {
+            width: 0;
+            border-right: none;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .nav-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-hidden .nav-header {
+            padding: 10px;
+        }
+
+        .nav-hidden .nav-header span,
+        .nav-hidden .nav-content {
+            display: none;
+        }
+
+        .toggle-nav {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .nav-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .tree-node {
+            margin: 5px 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            position: relative;
+            user-select: none;
+        }
+
+        .group-node {
+            font-weight: bold;
+            margin-bottom: 8px;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        .note-node {
+            margin-left: 20px;
+            padding: 6px 8px;
+            border-radius: 3px;
+        }
+
+        .tree-node:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tree-node.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .node-actions {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+
+        .tree-node:hover .node-actions {
+            display: block;
+        }
+
+        .node-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 2px 5px;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .delete-btn {
+            color: #f44336;
+        }
+
+        .add-note-btn {
+            color: var(--primary-color);
+        }
+
+        .drag-over {
+            background-color: #e8f5e8 !important;
+            border: 2px dashed var(--primary-color);
+        }
+
+        .nav-add-group {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-add-btn {
+            width: 100%;
+            height: 36px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-add-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* 折叠时的悬浮按钮 */
+        .nav-toggle-float {
+            position: fixed;
+            top: calc(var(--header-height) - 20px);
+            left: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav-hidden .nav-toggle-float {
+            display: flex;
+        }
+
+        /* 主体内容 */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--main-bg);
+            transition: background-color 0.3s ease;
+            height: 100%;
+        }
+
+        .nav-hidden .main-container {
+            margin-left: 0;
+        }
+
+        .editor-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--header-bg);
+        }
+
+        .editor-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--nav-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            background: var(--hover-bg);
+        }
+
+        .editor-container {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #editor {
+            height: 96%;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ql-toolbar {
+            border-radius: 4px 4px 0 0;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .ql-container {
+            flex: 1;
+            border-radius: 0 0 4px 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ql-editor {
+            flex: 1;
+            overflow: auto;
+            padding: 12px;
+        }
+
+        /* 代码块样式 */
+        .ql-snow .ql-editor pre.ql-syntax {
+            background-color: #23241f;
+            color: #f8f8f2;
+            overflow: visible;
+            border-radius: 3px;
+            padding: 10px;
+            font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .dark-mode .ql-snow .ql-editor pre.ql-syntax {
+            background-color: #1e1e1e;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: var(--nav-bg);
+            margin: 15% auto;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .modal h3 {
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--main-bg);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .confirm-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #ccc;
+            color: #333;
+        }
+
+        .danger-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        /* 提示信息 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+        }
+
+        /* 查看模式样式 */
+        .view-mode .ql-editor {
+            background-color: #f9f9f9;
+        }
+
+        .dark-mode .view-mode .ql-editor {
+            background-color: #3a4d66;
+        }
+
+        /* 拖拽样式 */
+        [draggable] {
+            cursor: move;
+        }
+
+        /* 重命名输入框 */
+        .rename-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--main-bg);
+            color: var(--text-color);
+            font-size: inherit;
+            font-weight: inherit;
+        }
+
+        /* 导出下拉按钮 */
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--nav-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .export-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--nav-bg);
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            margin-top: 5px;
+        }
+
+        .export-dropdown-content a {
+            color: var(--text-color);
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+
+        .export-dropdown-content a:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .export-dropdown.show .export-dropdown-content {
+            display: block;
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+
+        /* 折叠图标 */
+        .group-toggle {
+            margin-right: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <div class="title">本地记事本</div>
+        <div class="header-date">
+            <div class="date-time-container">
+                <div class="date-display" id="currentDate"></div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="dropdown" id="settingsDropdown">
+                <button class="action-icon" onclick="toggleSettingsDropdown()">⚙️</button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="toggleTheme()">🌙 夜间模式</a>
+                    <a href="#" onclick="tongbuData()">📤 同步数据</a>
+                    <a href="#" onclick="backupData()">💾 备份数据</a>
+                    <a href="#" onclick="restoreData()">📤 恢复数据</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container" id="mainContainer">
+        <!-- 导航栏 -->
+        <div class="nav-container">
+            <div class="nav-header">
+                <span>笔记本列表</span>
+                <button class="toggle-nav" onclick="toggleNav()">◀</button>
+            </div>
+            <div class="nav-content" id="navContent">
+                <!-- 树形结构将通过JavaScript动态生成 -->
+            </div>
+            <div class="nav-add-group">
+                <button class="nav-add-btn" onclick="addDefaultGroup()">+</button>
+            </div>
+        </div>
+
+        <!-- 悬浮的导航栏切换按钮 -->
+        <button class="nav-toggle-float" onclick="toggleNav()">☰</button>
+
+        <!-- 主体内容 -->
+        <div class="main-container">
+            <div class="editor-header">
+                <div class="editor-title" id="currentNoteTitle">请选择或创建记事本</div>
+                <div class="editor-actions">
+                    <button class="action-btn" onclick="toggleEditMode()" id="editToggleBtn">📝 编辑模式</button>
+                    <button class="action-btn" onclick="saveCurrentNote()">💾 保存</button>
+                    
+                    <!-- 导出下拉菜单 -->
+                    <div class="export-dropdown" id="exportDropdown">
+                        <button class="export-btn" onclick="toggleExportDropdown()">
+                            <span>📤 导出</span>
+                        </button>
+                        <div class="export-dropdown-content">
+                            <a href="#" onclick="exportToPDF()">📄 PDF</a>
+                            <a href="#" onclick="exportToHTML()">🌐 HTML</a>
+                            <a href="#" onclick="exportToImage()">🖼️ 图片</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div id="editor"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加分组模态框 -->
+    <div id="addGroupModal" class="modal">
+        <div class="modal-content">
+            <h3>添加分组</h3>
+            <input type="text" class="modal-input" id="groupNameInput" placeholder="输入分组名称">
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeModal('addGroupModal')">取消</button>
+                <button class="modal-btn confirm-btn" onclick="addGroup()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认保存模态框 -->
+    <div id="confirmSaveModal" class="modal">
+        <div class="modal-content">
+            <h3>确认操作</h3>
+            <p>当前内容已修改，是否保存更改？</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeModal('confirmSaveModal')">取消</button>
+                <button class="modal-btn" style="background: #f44336; color: white;" onclick="discardChanges()">不保存</button>
+                <button class="modal-btn confirm-btn" onclick="saveAndContinue()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入确认模态框 -->
+    <div id="importConfirmModal" class="modal">
+        <div class="modal-content">
+            <h3>导入确认</h3>
+            <p>检测到已存在数据，请选择操作方式：</p>
+            <div style="margin: 20px 0; text-align: center;">
+                <button class="modal-btn" style="background: #ff9800; color: white; margin: 5px; padding: 12px 20px;" onclick="importWithMerge()">🔄 合并数据</button>
+                <button class="modal-btn" style="background: #f44336; color: white; margin: 5px; padding: 12px 20px;" onclick="importWithReplace()">🗑️ 替换数据</button>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeModal('importConfirmModal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <h3>确认删除</h3>
+            <p id="deleteMessage">确定要删除这个项目吗？</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closeModal('deleteConfirmModal')">取消</button>
+                <button class="modal-btn danger-btn" onclick="confirmDelete()">确定删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // 全局变量
+        let db;
+        let quill;
+        let currentNote = null;
+        let isEditing = false;
+        let isNavCollapsed = false;
+        let isDarkMode = false;
+        let hasUnsavedChanges = false;
+        let pendingNavigation = null;
+        let lastActiveNoteId = null;
+        let deletePending = null;
+        let renamingNode = null;
+        let groupStates = {}; // 记录分组折叠状态
+        let clickTimer = null;
+        let clickCount = 0;
+		let spaceCharWidth=-1;
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initDB();
+            initQuill();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // 从localStorage恢复最后的状态
+            const savedNoteId = localStorage.getItem('lastActiveNoteId');
+            if (savedNoteId) {
+                lastActiveNoteId = parseInt(savedNoteId);
+            }
+            
+            // 恢复分组折叠状态
+            const savedGroupStates = localStorage.getItem('groupStates');
+            if (savedGroupStates) {
+                groupStates = JSON.parse(savedGroupStates);
+            }
+            
+            // 恢复主题设置
+            const savedTheme = localStorage.getItem('notebookTheme');
+            if (savedTheme === 'dark') {
+                isDarkMode = true;
+                document.body.classList.add('dark-mode');
+                const themeBtn = document.querySelector('.dropdown-content a:first-child');
+                if (themeBtn) {
+                    themeBtn.innerHTML = '☀️ 白天模式';
+                }
+            }
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown')) {
+                    closeSettingsDropdown();
+                }
+                if (!e.target.closest('.export-dropdown')) {
+                    closeExportDropdown();
+                }
+                //if (renamingNode && !e.target.closest('.rename-input')) {				console.log(e.target,"xxxxxxxxxxxxxxxxxx");
+
+               //     finishRename();
+               // }
+            });
+            
+            // 添加快捷键监听
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+S 保存
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveCurrentNote();
+                }
+            });
+        });
+
+        // 切换设置下拉菜单
+        function toggleSettingsDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // 关闭设置下拉菜单
+        function closeSettingsDropdown() {
+            document.getElementById('settingsDropdown').classList.remove('show');
+        }
+
+        // 切换导出下拉菜单
+        function toggleExportDropdown() {
+            const dropdown = document.getElementById('exportDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // 关闭导出下拉菜单
+        function closeExportDropdown() {
+            document.getElementById('exportDropdown').classList.remove('show');
+        }
+
+        // 初始化IndexedDB
+        function initDB() {
+            const request = indexedDB.open('NotebookDB', 3);
+            
+            request.onerror = function(event) {
+                console.error('数据库打开失败:', event.target.error);
+                showNotification('数据库初始化失败', 'error');
+            };
+            
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadNotebookTree();
+                // 如果有最后保存的笔记ID，自动加载
+                if (lastActiveNoteId) {
+                    setTimeout(() => {
+                        openNote(lastActiveNoteId);
+                    }, 100);
+                }
+            };
+            
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                
+                if (!db.objectStoreNames.contains('groups')) {
+                    const groupStore = db.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
+                    groupStore.createIndex('name', 'name', { unique: false });
+                }
+                
+                if (!db.objectStoreNames.contains('notes')) {
+                    const noteStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                    noteStore.createIndex('groupId', 'groupId', { unique: false });
+                    noteStore.createIndex('title', 'title', { unique: false });
+                }
+            };
+        }
+
+        // 初始化Quill编辑器（添加代码块功能）
+        function initQuill() {
+            quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        //[{ 'header': [1, 2, 3, false] }],
+						[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'align': [] }], 
+                        ['link', 'image'],
+						['formula','code-block'],
+                        [{'cust-hr':{text:"─",act:function(){
+							    const range = quill.getSelection();
+								const index = range ? range.index : quill.getLength();
+								quill.insertEmbed(index, 'hr', true);
+								quill.setSelection(index + 2);
+						}}},{'cust-repeat':{text:"⬇",act:function(){
+							    const range = quill.getSelection();
+								const index = range ? range.index : quill.getLength();
+								var inputA=window.prompt("请输入要重复插入的值，重复数量，如：* 10");
+								if(inputA.trim().length<1 && inputA!=" "&& inputA!="  ") return ;
+								if(inputA==" "||inputA=="  "){
+									inputA=[" "];
+								}else{
+									inputA=inputA.replaceAll("    ","").replaceAll("   ","").replaceAll("  ","").split(" ");
+								}
+								let cnt=1;
+								if(inputA.length<2){
+									cnt=quill.container.clientWidth/getCharWidth(inputA[0]);
+								}else{
+									cnt=inputA[1]*1;
+								}
+								let d=quill.insertText(index + 1, inputA[0].repeat(cnt),
+									{ 'background': 'rgba(229, 229, 222, 0.65)', size: 'small' }
+								);
+								quill.setSelection(index + 2);
+						}}},'blockquote','clean']
+                    ],
+                    syntax: true,
+					
+                },
+                placeholder: '开始编写您的记事本...'
+            });
+
+            // 设置默认为查看模式
+            quill.enable(false);
+            updateViewMode();
+			
+			let HrBlockEmbed = Quill.import('blots/block/embed');
+			class DividerBlot extends HrBlockEmbed { }
+			DividerBlot.blotName = 'hr';
+			DividerBlot.tagName = 'hr';
+			Quill.register(DividerBlot);
+			
+            // 监听编辑器内容变化
+            quill.on('text-change', function() {
+                hasUnsavedChanges = true;
+                updateSaveButton();
+            });
+			
+			(quill.options.modules.toolbar.container||[]).forEach((t,i)=>{
+				if(Array.isArray(t)){
+					t.forEach((t1,i1)=>{
+						 for(var k in t1){
+							if(k.startsWith("cust-")){
+								console.log(k,t1);
+								let ks=document.querySelectorAll("button.ql-"+k);
+								if(ks){
+									ks[0].innerHTML=t1[k].text;
+									ks[0].addEventListener('click', (e) => {
+									e.preventDefault(); // 阻止默认行为（如表单提交）
+									t1[k].act(t1[k]);
+								});
+								}
+								
+							}
+						 }
+					});
+				}
+			})
+			
+        }
+
+        // 更新查看模式样式
+        function updateViewMode() {
+            const editorContainer = document.querySelector('.main-container');
+            if (!isEditing) {
+                editorContainer.classList.add('view-mode');
+            } else {
+                editorContainer.classList.remove('view-mode');
+            }
+        }
+
+        // 更新日期时间显示
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const weekStr = now.toLocaleDateString('zh-CN', { weekday: 'long' });
+            const timeStr = now.toLocaleTimeString('zh-CN');
+            
+            document.getElementById('currentDate').textContent = `${dateStr} ${weekStr} ${timeStr}`;
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                const themeBtn = document.querySelector('.dropdown-content a:first-child');
+                if (themeBtn) {
+                    themeBtn.innerHTML = '☀️ 白天模式';
+                }
+            } else {
+                document.body.classList.remove('dark-mode');
+                const themeBtn = document.querySelector('.dropdown-content a:first-child');
+                if (themeBtn) {
+                    themeBtn.innerHTML = '🌙 夜间模式';
+                }
+            }
+            // 保存主题设置
+            localStorage.setItem('notebookTheme', isDarkMode ? 'dark' : 'light');
+            closeSettingsDropdown();
+        }
+
+        // 切换导航栏
+        function toggleNav() {
+            const container = document.getElementById('mainContainer');
+            isNavCollapsed = !isNavCollapsed;
+            
+            if (isNavCollapsed) {
+                container.classList.add('nav-hidden');
+                document.querySelector('.toggle-nav').textContent = '▶';
+            } else {
+                container.classList.remove('nav-hidden');
+                document.querySelector('.toggle-nav').textContent = '◀';
+            }
+        }
+
+        // 切换编辑模式
+        function toggleEditMode() {
+            isEditing = !isEditing;
+            const btn = document.getElementById('editToggleBtn');
+            
+            if (isEditing) {
+                btn.textContent = '👁️ 查看模式';
+                quill.enable(true);
+            } else {
+                btn.textContent = '📝 编辑模式';
+                quill.enable(false);
+            }
+            updateViewMode();
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            notification.style.background = type === 'error' ? '#f44336' : '#4CAF50';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // 添加默认分组
+        function addDefaultGroup() {
+            const transaction = db.transaction(['groups'], 'readwrite');
+            const store = transaction.objectStore('groups');
+            const group = { name: '默认分组', createdAt: new Date() };
+
+            const request = store.add(group);
+            request.onsuccess = function() {
+                loadNotebookTree();
+                showNotification('分组添加成功');
+            };
+            
+            request.onerror = function() {
+                showNotification('分组添加失败', 'error');
+            };
+        }
+
+        // 显示添加分组模态框
+        function showAddGroupModal() {
+            document.getElementById('groupNameInput').value = '';
+            document.getElementById('addGroupModal').style.display = 'block';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // 添加分组
+        function addGroup() {
+            const groupName = document.getElementById('groupNameInput').value.trim();
+            if (!groupName) {
+                showNotification('请输入分组名称', 'error');
+                return;
+            }
+
+            const transaction = db.transaction(['groups'], 'readwrite');
+            const store = transaction.objectStore('groups');
+            const group = { name: groupName, createdAt: new Date() };
+
+            const request = store.add(group);
+            request.onsuccess = function() {
+                closeModal('addGroupModal');
+                loadNotebookTree();
+                showNotification('分组添加成功');
+            };
+            
+            request.onerror = function() {
+                showNotification('分组添加失败', 'error');
+            };
+        }
+
+        // 在分组中添加默认笔记本
+        function addDefaultNoteToGroup(groupId) {
+            const transaction = db.transaction(['notes'], 'readwrite');
+            const store = transaction.objectStore('notes');
+            const note = {
+                title: '默认笔记本',
+                groupId: groupId,
+                content: JSON.stringify({ops: []}),
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            const request = store.add(note);
+            request.onsuccess = function() {
+                loadNotebookTree();
+                showNotification('笔记本添加成功');
+                // 自动打开新创建的记事本
+                setTimeout(() => {
+                    openNote(request.result);
+                    if (!isEditing) {
+                        toggleEditMode();
+                    }
+                }, 100);
+            };
+            
+            request.onerror = function() {
+                showNotification('笔记本添加失败', 'error');
+            };
+        }
+
+        // 处理单击和双击事件
+        function handleGroupClick(groupId, element, isToggleIcon) {
+			/*if (!isToggleIcon) {
+				startRename(element, 'group', element.dataset.groupName, groupId);
+			}else{
+				 toggleGroup(groupId);
+			}*/
+           
+/*		   if (clickTimer) {
+                clearTimeout(clickTimer);
+                clickTimer = null;
+                clickCount = 0;
+                // 双击事件 - 重命名
+                if (!isToggleIcon) {
+                    startRename(element, 'group', element.dataset.groupName, groupId);
+                }
+            } else {
+                clickCount = 1;
+                clickTimer = setTimeout(() => {
+                    if (clickCount === 1) {
+                        // 单击事件 - 切换折叠状态
+                        if (isToggleIcon) {
+                            toggleGroup(groupId);
+                        }
+                    }
+                    clickTimer = null;
+                    clickCount = 0;
+                }, 300);
+            }*/
+        }
+
+        // 切换分组折叠状态
+        function toggleGroup(groupId) {
+            groupStates[groupId] = !groupStates[groupId];
+            localStorage.setItem('groupStates', JSON.stringify(groupStates));
+            loadNotebookTree();
+        }
+
+        // 加载笔记本树形结构（按名称排序）
+        function loadNotebookTree() {
+            const navContent = document.getElementById('navContent');
+            navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">加载中...</div>';
+
+            const groupsTransaction = db.transaction(['groups'], 'readonly');
+            const groupsStore = groupsTransaction.objectStore('groups');
+            const groupsRequest = groupsStore.getAll();
+
+            groupsRequest.onsuccess = function() {
+                let groups = groupsRequest.result;
+                // 按名称排序
+                groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+                
+                const notesTransaction = db.transaction(['notes'], 'readonly');
+                const notesStore = notesTransaction.objectStore('notes');
+                const notesRequest = notesStore.getAll();
+
+                notesRequest.onsuccess = function() {
+                    let notes = notesRequest.result;
+                    // 按标题排序
+                    notes.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
+                    renderNotebookTree(groups, notes);
+                };
+                
+                notesRequest.onerror = function() {
+                    navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #f44336;">加载失败</div>';
+                };
+            };
+            
+            groupsRequest.onerror = function() {
+                navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #f44336;">加载失败</div>';
+            };
+        }
+
+        // 渲染笔记本树形结构
+        function renderNotebookTree(groups, notes) {
+            const navContent = document.getElementById('navContent');
+            navContent.innerHTML = '';
+
+            // 先显示未分组的记事本
+            const ungroupedNotes = notes.filter(note => !note.groupId);
+            if (ungroupedNotes.length > 0) {
+                const ungroupedDiv = document.createElement('div');
+                ungroupedDiv.className = 'tree-node group-node';
+                ungroupedDiv.innerHTML = '📁 未分组';
+                ungroupedDiv.dataset.groupId = 'ungrouped';
+                // 添加拖拽事件
+                ungroupedDiv.addEventListener('dragover', handleDragOver);
+                ungroupedDiv.addEventListener('dragleave', handleDragLeave);
+                ungroupedDiv.addEventListener('drop', function(e) {
+                    handleDrop(e, null);
+                });
+                // 双击重命名
+                ungroupedDiv.ondblclick = function(e) {
+                    if (e.target === ungroupedDiv) {
+                        startRename(ungroupedDiv, 'group', '未分组');
+                    }
+                };
+                navContent.appendChild(ungroupedDiv);
+
+                ungroupedNotes.forEach(note => {
+                    const noteNode = createNoteNode(note);
+                    navContent.appendChild(noteNode);
+                });
+            }
+
+            // 显示分组及其记事本
+            groups.forEach(group => {
+                const isCollapsed = groupStates[group.id] || false;
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'tree-node group-node';
+                groupDiv.innerHTML = `
+                    <span class="group-toggle">${isCollapsed ? '▶' : '▼'}</span>
+                    📁 ${group.name}
+                `;
+                groupDiv.dataset.groupId = group.id;
+                groupDiv.dataset.groupName = group.name;
+                
+                // 处理单击和双击事件
+                groupDiv.onclick = function(e) {
+                    const isToggleIcon = e.target.classList.contains('group-toggle');
+                   // handleGroupClick(group.id, groupDiv, isToggleIcon);
+					if (isToggleIcon)toggleGroup(group.id);
+                };
+				groupDiv.ondblclick = function(e) {
+                    const isToggleIcon = e.target.classList.contains('group-toggle');
+					if (!isToggleIcon)startRename(groupDiv, 'group', groupDiv.dataset.groupName, group.id);
+                };
+                
+                // 添加拖拽事件
+                groupDiv.addEventListener('dragover', handleDragOver);
+                groupDiv.addEventListener('dragleave', handleDragLeave);
+                groupDiv.addEventListener('drop', function(e) {
+                    handleDrop(e, group.id);
+                });
+
+                // 添加分组操作按钮
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'node-actions';
+                
+                const addNoteBtn = document.createElement('button');
+                addNoteBtn.className = 'node-action-btn add-note-btn';
+                addNoteBtn.innerHTML = '➕';
+                addNoteBtn.title = '添加笔记本';
+                addNoteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    addDefaultNoteToGroup(group.id);
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'node-action-btn delete-btn';
+                deleteBtn.innerHTML = '🗑️';
+                deleteBtn.title = '删除分组';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    showDeleteConfirm('group', group.id, group.name);
+                };
+                
+                actionsDiv.appendChild(addNoteBtn);
+                actionsDiv.appendChild(deleteBtn);
+                groupDiv.appendChild(actionsDiv);
+
+                navContent.appendChild(groupDiv);
+
+                // 只有在分组展开时才显示其中的笔记
+                if (!isCollapsed) {
+                    const groupedNotes = notes.filter(note => note.groupId === group.id);
+                    groupedNotes.forEach(note => {
+                        const noteNode = createNoteNode(note);
+                        navContent.appendChild(noteNode);
+                    });
+                }
+            });
+
+            // 如果没有任何数据，显示提示
+            if (groups.length === 0 && notes.length === 0) {
+                navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">暂无数据<br>点击下方 + 按钮添加分组</div>';
+            }
+        }
+
+        // 创建记事本节点
+        function createNoteNode(note) {
+            const noteNode = document.createElement('div');
+            noteNode.className = 'tree-node note-node';
+            noteNode.innerHTML = `📝 ${note.title}`;
+            noteNode.dataset.noteId = note.id;
+            noteNode.dataset.groupId = note.groupId || 'null';
+            noteNode.draggable = true;
+            
+            // 添加拖拽事件
+            noteNode.addEventListener('dragstart', handleDragStart);
+            
+            noteNode.onclick = () => handleNoteClick(note.id);
+            
+            if (currentNote && currentNote.id === note.id) {
+                noteNode.classList.add('active');
+            }
+
+            // 双击重命名
+            noteNode.ondblclick = function(e) {
+                e.stopPropagation();
+                startRename(noteNode, 'note', note.title, note.id);
+            };
+
+            // 添加记事本操作按钮
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'node-actions';
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'node-action-btn delete-btn';
+            deleteBtn.innerHTML = '🗑️';
+            deleteBtn.title = '删除笔记本';
+            deleteBtn.onclick = function(e) {
+                e.stopPropagation();
+                showDeleteConfirm('note', note.id, note.title);
+            };
+            actionsDiv.appendChild(deleteBtn);
+            noteNode.appendChild(actionsDiv);
+
+            return noteNode;
+        }
+
+        // 开始重命名
+        function startRename(node, type, currentName, id) {
+            if (renamingNode) {
+                finishRename();
+            }
+            
+            renamingNode = { node, type, id, originalName: currentName };
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'rename-input';
+            input.value = currentName;
+            input.dataset.renameType = type;
+            input.dataset.renameId = id;
+            
+            input.onkeydown = function(e) {
+                if (e.key === 'Enter') {
+                    finishRename();
+                } else if (e.key === 'Escape') {
+                    cancelRename();
+                }
+            };
+            
+            input.onblur = finishRename;
+            node.innerHTML = '';
+            node.appendChild(input);
+            input.focus();
+            input.select();
+        }
+
+        // 完成重命名
+        function finishRename() {
+            if (!renamingNode) return;
+            
+            const input = renamingNode.node.querySelector('.rename-input');
+            if (!input) {
+                cancelRename();
+                return;
+            }
+            
+            const newName = input.value.trim();
+            if (!newName || newName === renamingNode.originalName) {
+                cancelRename();
+                return;
+            }
+            
+            if (renamingNode.type === 'group') {
+                updateGroupName(renamingNode.id, newName);
+            } else {
+                updateNoteName(renamingNode.id, newName);
+            }
+            
+            renamingNode = null;
+        }
+
+        // 取消重命名
+        function cancelRename() {
+            if (!renamingNode) return;
+            
+            if (renamingNode.type === 'group') {
+                if (renamingNode.originalName === '未分组') {
+                    renamingNode.node.innerHTML = '📁 未分组';
+                } else {
+                    const groupId = renamingNode.id;
+                    const isCollapsed = groupStates[groupId] || false;
+                    renamingNode.node.innerHTML = `
+                        <span class="group-toggle">${isCollapsed ? '▶' : '▼'}</span>
+                        📁 ${renamingNode.originalName}
+                    `;
+                }
+            } else {
+                renamingNode.node.innerHTML = `📝 ${renamingNode.originalName}`;
+            }
+            
+            if (renamingNode.type === 'group') {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'node-actions';
+                
+                const addNoteBtn = document.createElement('button');
+                addNoteBtn.className = 'node-action-btn add-note-btn';
+                addNoteBtn.innerHTML = '➕';
+                addNoteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    addDefaultNoteToGroup(renamingNode.id);
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'node-action-btn delete-btn';
+                deleteBtn.innerHTML = '🗑️';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    showDeleteConfirm('group', renamingNode.id, renamingNode.originalName);
+                };
+                
+                actionsDiv.appendChild(addNoteBtn);
+                actionsDiv.appendChild(deleteBtn);
+                renamingNode.node.appendChild(actionsDiv);
+            } else {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'node-actions';
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'node-action-btn delete-btn';
+                deleteBtn.innerHTML = '🗑️';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    showDeleteConfirm('note', renamingNode.id, renamingNode.originalName);
+                };
+                actionsDiv.appendChild(deleteBtn);
+                renamingNode.node.appendChild(actionsDiv);
+            }
+            
+            renamingNode = null;
+        }
+
+        // 更新分组名称
+        function updateGroupName(groupId, newName) {
+            const transaction = db.transaction(['groups'], 'readwrite');
+            const store = transaction.objectStore('groups');
+            const request = store.get(groupId);
+
+            request.onsuccess = function() {
+                const group = request.result;
+                if (group) {
+                    group.name = newName;
+                    group.updatedAt = new Date();
+                    const updateRequest = store.put(group);
+                    updateRequest.onsuccess = function() {
+                        loadNotebookTree();
+                        showNotification('分组重命名成功');
+                    };
+                    updateRequest.onerror = function() {
+                        showNotification('分组重命名失败', 'error');
+                    };
+                }
+            };
+            
+            request.onerror = function() {
+                showNotification('获取分组信息失败', 'error');
+            };
+        }
+
+        // 更新记事本名称
+        function updateNoteName(noteId, newName) {
+            const transaction = db.transaction(['notes'], 'readwrite');
+            const store = transaction.objectStore('notes');
+            const request = store.get(noteId);
+
+            request.onsuccess = function() {
+                const note = request.result;
+                if (note) {
+                    note.title = newName;
+                    note.updatedAt = new Date();
+                    const updateRequest = store.put(note);
+                    updateRequest.onsuccess = function() {
+                        if (currentNote && currentNote.id === noteId) {
+                            document.getElementById('currentNoteTitle').textContent = newName;
+                            currentNote.title = newName;
+                        }
+                        loadNotebookTree();
+                        showNotification('记事本重命名成功');
+                    };
+                    updateRequest.onerror = function() {
+                        showNotification('记事本重命名失败', 'error');
+                    };
+                }
+            };
+            
+            request.onerror = function() {
+                showNotification('获取记事本信息失败', 'error');
+            };
+        }
+
+        // 拖拽开始
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.noteId);
+            e.target.style.opacity = '0.5';
+        }
+
+        // 拖拽经过
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        // 拖拽离开
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        // 拖拽放置
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const noteId = e.dataTransfer.getData('text/plain');
+            const targetGroupId = e.currentTarget.dataset.groupId === 'ungrouped' ? null : 
+                                 (e.currentTarget.dataset.groupId ? parseInt(e.currentTarget.dataset.groupId) : null);
+            
+            if (noteId) {
+                moveNoteToGroup(parseInt(noteId), targetGroupId);
+            }
+        }
+
+        // 移动记事本到分组
+        function moveNoteToGroup(noteId, groupId) {
+            const transaction = db.transaction(['notes'], 'readwrite');
+            const store = transaction.objectStore('notes');
+            const request = store.get(noteId);
+
+            request.onsuccess = function() {
+                const note = request.result;
+                if (note) {
+                    note.groupId = groupId;
+                    note.updatedAt = new Date();
+                    
+                    const updateRequest = store.put(note);
+                    updateRequest.onsuccess = function() {
+                        loadNotebookTree();
+                        showNotification('记事本移动成功');
+                        if (currentNote && currentNote.id === noteId) {
+                            currentNote.groupId = groupId;
+                        }
+                    };
+                    updateRequest.onerror = function() {
+                        showNotification('记事本移动失败', 'error');
+                    };
+                }
+            };
+            
+            request.onerror = function() {
+                showNotification('获取记事本信息失败', 'error');
+            };
+        }
+
+        // 显示删除确认
+        function showDeleteConfirm(type, id, name) {
+            deletePending = { type, id, name };
+            const message = type === 'group' ? 
+                `确定要删除分组 "${name}" 吗？注意：删除分组不会删除其中的记事本，记事本将移至未分组。` :
+                `确定要删除记事本 "${name}" 吗？此操作不可撤销。`;
+            document.getElementById('deleteMessage').textContent = message;
+            document.getElementById('deleteConfirmModal').style.display = 'block';
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            if (!deletePending) return;
+            
+            const { type, id, name } = deletePending;
+            
+            if (type === 'group') {
+                deleteGroup(id);
+            } else {
+                deleteNote(id);
+            }
+            
+            closeModal('deleteConfirmModal');
+            deletePending = null;
+        }
+
+        // 删除分组
+        function deleteGroup(groupId) {
+            const transaction = db.transaction(['notes'], 'readonly');
+            const store = transaction.objectStore('notes');
+            const index = store.index('groupId');
+            const request = index.getAll(groupId);
+
+            request.onsuccess = function() {
+                const notesInGroup = request.result;
+                if (notesInGroup.length > 0) {
+                    showNotification('分组下有记事本，不能直接删除', 'error');
+                    return;
+                }
+
+                const deleteTransaction = db.transaction(['groups'], 'readwrite');
+                const deleteStore = deleteTransaction.objectStore('groups');
+                const deleteRequest = deleteStore.delete(groupId);
+
+                deleteRequest.onsuccess = function() {
+                    // 删除分组状态记录
+                    delete groupStates[groupId];
+                    localStorage.setItem('groupStates', JSON.stringify(groupStates));
+                    loadNotebookTree();
+                    showNotification('分组删除成功');
+                };
+                
+                deleteRequest.onerror = function() {
+                    showNotification('分组删除失败', 'error');
+                };
+            };
+            
+            request.onerror = function() {
+                showNotification('检查分组内容失败', 'error');
+            };
+        }
+
+        // 删除记事本
+        function deleteNote(noteId) {
+            const transaction = db.transaction(['notes'], 'readwrite');
+            const store = transaction.objectStore('notes');
+            const request = store.delete(noteId);
+
+            request.onsuccess = function() {
+                if (currentNote && currentNote.id === noteId) {
+                    currentNote = null;
+                    document.getElementById('currentNoteTitle').textContent = '请选择或创建记事本';
+                    quill.setContents({ops: []});
+                    hasUnsavedChanges = false;
+                    localStorage.removeItem('lastActiveNoteId');
+                }
+                
+                loadNotebookTree();
+                showNotification('记事本删除成功');
+            };
+            
+            request.onerror = function() {
+                showNotification('记事本删除失败', 'error');
+            };
+        }
+
+        // 处理记事本点击
+        function handleNoteClick(noteId) {
+            if (hasUnsavedChanges && currentNote && currentNote.id !== noteId) {
+                pendingNavigation = noteId;
+                document.getElementById('confirmSaveModal').style.display = 'block';
+            } else {
+                openNote(noteId);
+            }
+        }
+
+        // 打开记事本
+        function openNote(noteId) {
+            const transaction = db.transaction(['notes'], 'readonly');
+            const store = transaction.objectStore('notes');
+            const request = store.get(noteId);
+
+            request.onsuccess = function() {
+                currentNote = request.result;
+                if (currentNote) {
+                    document.getElementById('currentNoteTitle').textContent = currentNote.title;
+                    const content = currentNote.content ? JSON.parse(currentNote.content) : {ops: []};
+                    quill.setContents(content);
+                    hasUnsavedChanges = false;
+                    updateSaveButton();
+                    
+                    if (isEditing) {
+                        toggleEditMode();
+                    }
+                    
+                    document.querySelectorAll('.tree-node').forEach(node => {
+                        node.classList.remove('active');
+                    });
+                    const activeNode = document.querySelector(`[data-note-id="${noteId}"]`);
+                    if (activeNode) {
+                        activeNode.classList.add('active');
+                    }
+                    
+                    lastActiveNoteId = noteId;
+                    localStorage.setItem('lastActiveNoteId', noteId.toString());
+                }
+            };
+            
+            request.onerror = function() {
+                showNotification('打开记事本失败', 'error');
+            };
+        }
+
+        // 更新保存按钮状态
+        function updateSaveButton() {
+        }
+
+        // 保存当前记事本
+        function saveCurrentNote() {
+            if (!currentNote) {
+                showNotification('请先选择或创建记事本', 'error');
+                return;
+            }
+
+            const content = JSON.stringify(quill.getContents());
+            currentNote.content = content;
+            currentNote.updatedAt = new Date();
+
+            const transaction = db.transaction(['notes'], 'readwrite');
+            const store = transaction.objectStore('notes');
+            const request = store.put(currentNote);
+
+            request.onsuccess = function() {
+                hasUnsavedChanges = false;
+                updateSaveButton();
+                showNotification('保存成功！');
+            };
+            
+            request.onerror = function() {
+                showNotification('保存失败', 'error');
+            };
+        }
+
+        // 不保存更改
+        function discardChanges() {
+            hasUnsavedChanges = false;
+            closeModal('confirmSaveModal');
+            if (pendingNavigation) {
+                openNote(pendingNavigation);
+                pendingNavigation = null;
+            }
+        }
+
+        // 保存并继续
+        function saveAndContinue() {
+            if (currentNote) {
+                saveCurrentNote();
+            }
+            closeModal('confirmSaveModal');
+            setTimeout(() => {
+                if (pendingNavigation) {
+                    openNote(pendingNavigation);
+                    pendingNavigation = null;
+                }
+            }, 300);
+        }
+
+		function loadScript(src) {
+			return new Promise((resolve, reject) => {
+				// 防止重复加载
+				if (document.querySelector(`script[src="${src}"]`)) {
+					resolve();
+					return;
+				}
+
+				const script = document.createElement('script');
+				script.src = src;
+
+				script.onload = () => resolve();
+				script.onerror = () => reject(new Error(`加载失败: ${src}`));
+
+				document.head.appendChild(script);
+			});
+		}
+        // 导出为PDF
+      async  function exportToPDF() {
+            if (!currentNote) {
+                showNotification('请先选择一个记事本', 'error');
+                closeExportDropdown();
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                if(typeof fontBase64==="undefined"){
+					await loadScript('https://gh-proxy.com/https://github.com/INHEGH/abocide/raw/refs/heads/main/notosans.raw');
+				}
+				
+				doc.addFileToVFS('NotoSansSC.ttf', fontBase64);
+				doc.addFont('NotoSansSC.ttf', 'NotoSansSC', 'normal');
+				doc.setFont('NotoSansSC');
+                doc.setFontSize(16);
+                doc.text(currentNote.title, 10, 10);
+                
+				
+				        // 设置每页最大行数
+				const maxLinesPerPage = 40;
+				const lineHeight = 7; // 行高（毫米）
+				const marginTop = 30; // 第一行距离顶部的距离
+		
+                const content = quill.getText();
+                doc.setFontSize(12);
+                const lines = doc.splitTextToSize(content, 180);
+				    let y = marginTop;
+					let currentPage = 1;
+
+					lines.forEach((line, index) => {
+						if(line.trim()=="") return ;
+						// 如果超出页面，添加新页
+						if (y > 280) { // A4 页面高度约 297mm，留白
+							doc.addPage();
+							currentPage++;
+							y = 20; // 新页起始位置
+						}
+
+						doc.text(line, 10, y);
+						y += lineHeight;
+					});
+		
+                
+                doc.save(`${currentNote.title}.pdf`);
+                showNotification('PDF导出成功');
+                closeExportDropdown();
+            } catch (error) {
+                console.error('PDF导出失败:', error);
+                showNotification('PDF导出失败', 'error');
+            }
+        }
+
+        // 导出为HTML
+        function exportToHTML() {
+            if (!currentNote) {
+                showNotification('请先选择一个记事本', 'error');
+                closeExportDropdown();
+                return;
+            }
+
+            try {
+                const content = quill.root.innerHTML;
+                const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${currentNote.title}</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            line-height: 1.6;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .ql-editor {
+            min-height: 200px;
+        }
+        pre.ql-syntax {
+            background-color: #23241f;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${currentNote.title}</h1>
+        <div class="ql-editor">${content}</div>
+        <div style="margin-top: 30px; color: #666; font-size: 12px;">
+            导出时间: ${new Date().toLocaleString('zh-CN')}
+        </div>
+    </div>
+</body>
+</html>`;
+
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${currentNote.title}.html`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('HTML导出成功');
+                closeExportDropdown();
+            } catch (error) {
+                console.error('HTML导出失败:', error);
+                showNotification('HTML导出失败', 'error');
+            }
+        }
+
+        // 导出为图片
+        function exportToImage() {
+            if (!currentNote) {
+                showNotification('请先选择一个记事本', 'error');
+                closeExportDropdown();
+                return;
+            }
+
+            try {
+                const exportContainer = document.createElement('div');
+                exportContainer.style.position = 'absolute';
+                exportContainer.style.left = '-9999px';
+                exportContainer.style.width = '800px';
+                exportContainer.style.padding = '30px';
+                exportContainer.style.background = 'white';
+                exportContainer.style.fontFamily = 'Arial, sans-serif';
+                
+                const title = document.createElement('h1');
+                title.textContent = currentNote.title;
+                title.style.color = '#333';
+                title.style.borderBottom = '2px solid #4CAF50';
+                title.style.paddingBottom = '10px';
+                title.style.marginBottom = '20px';
+                
+                const contentClone = quill.root.cloneNode(true);
+                contentClone.style.minHeight = '200px';
+                contentClone.style.background = 'white';
+                
+                exportContainer.appendChild(title);
+                exportContainer.appendChild(contentClone);
+                document.body.appendChild(exportContainer);
+
+                html2canvas(exportContainer, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true
+                }).then(canvas => {
+                    canvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${currentNote.title}.png`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        showNotification('图片导出成功');
+                        closeExportDropdown();
+                    });
+                }).catch(error => {
+                    console.error('图片导出失败:', error);
+                    showNotification('图片导出失败', 'error');
+                }).finally(() => {
+                    document.body.removeChild(exportContainer);
+                });
+            } catch (error) {
+                console.error('图片导出失败:', error);
+                showNotification('图片导出失败', 'error');
+            }
+        }
+
+        // 备份数据
+        function backupData() {
+            const exportObj = {
+                groups: [],
+                notes: [],
+                exportDate: new Date().toISOString()
+            };
+
+            const groupsTransaction = db.transaction(['groups'], 'readonly');
+            const groupsStore = groupsTransaction.objectStore('groups');
+            const groupsRequest = groupsStore.getAll();
+
+            groupsRequest.onsuccess = function() {
+                exportObj.groups = groupsRequest.result;
+                
+                const notesTransaction = db.transaction(['notes'], 'readonly');
+                const notesStore = notesTransaction.objectStore('notes');
+                const notesRequest = notesStore.getAll();
+
+                notesRequest.onsuccess = function() {
+                    exportObj.notes = notesRequest.result;
+                    
+                    const dataStr = JSON.stringify(exportObj, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(dataBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `notebook_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showNotification('数据备份成功');
+                };
+                
+                notesRequest.onerror = function() {
+                    showNotification('数据备份失败', 'error');
+                };
+            };
+            
+            groupsRequest.onerror = function() {
+                showNotification('数据备份失败', 'error');
+            };
+            
+            closeSettingsDropdown();
+        }
+
+        // 恢复数据
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        window.importedData = importedData;
+                        document.getElementById('importConfirmModal').style.display = 'block';
+                    } catch (error) {
+                        showNotification('文件格式错误', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+            closeSettingsDropdown();
+        }
+		
+		
+		function tongbuData(){
+			    const exportObj = {
+					groups: [],
+					notes: [],
+					exportDate: new Date().toISOString()
+				};
+
+				const groupsTransaction = db.transaction(['groups'], 'readonly');
+				const groupsStore = groupsTransaction.objectStore('groups');
+				const groupsRequest = groupsStore.getAll();
+
+				groupsRequest.onsuccess = function() {
+					exportObj.groups = groupsRequest.result;
+					
+					const notesTransaction = db.transaction(['notes'], 'readonly');
+					const notesStore = notesTransaction.objectStore('notes');
+					const notesRequest = notesStore.getAll();
+
+					notesRequest.onsuccess = function() {
+						exportObj.notes = notesRequest.result;
+						sendData(exportObj)
+						 
+						
+					};
+					
+					notesRequest.onerror = function() {
+						showNotification('数据备份失败', 'error');
+					};
+				};
+				
+				groupsRequest.onerror = function() {
+					showNotification('数据备份失败', 'error');
+				};
+		}
+		
+		async function sendData(data){
+			 try {
+					// 1. 配置 fetch 选项
+					const requestOptions = {
+						method: 'POST',              // 指定请求方法
+						headers: {
+							'Content-Type': 'application/json', // 告诉服务器我们发送的是 JSON 数据
+							// 如果需要认证，可以添加 Authorization 头
+							// 'Authorization': 'Bearer your-token-here',
+						},
+						body: JSON.stringify(data)   // 将 JavaScript 对象转换为 JSON 字符串
+					};
+
+					// 2. 发送请求并等待响应
+					const response = await fetch("/netbook/save", requestOptions);
+
+					// 3. 检查响应状态
+					if (!response.ok) {
+						// 如果 HTTP 状态码表示错误 (例如 4xx, 5xx)
+						throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+					}
+
+					// 4. 解析服务器返回的 JSON 数据
+					// 即使请求成功，服务器也可能返回错误信息，最好在这里也处理一下
+					let result;
+					const contentType = response.headers.get("content-type");
+					if (contentType && contentType.indexOf("application/json") !== -1) {
+						 result = await response.json(); // 解析 JSON
+					} else {
+						 result = await response.text(); // 或者获取纯文本
+						 console.warn('Response was not JSON:', result);
+					}
+
+					// 5. 处理成功的响应数据
+					console.log('Success! Server response:', result);
+					// 你可以在这里更新页面UI，提示用户等
+					showNotification('数据备份成功');
+
+				} catch (error) {
+					// 6. 处理网络错误或在 'try' 块中抛出的错误
+					showNotification('数据备份失败', 'error');
+				}
+		}
+
+        // 合并导入数据
+        function importWithMerge() {
+            performImport('merge');
+        }
+
+        // 替换导入数据
+        function importWithReplace() {
+            performImport('replace');
+        }
+
+        // 执行导入操作
+        function performImport(mode) {
+            const importedData = window.importedData;
+            closeModal('importConfirmModal');
+
+            if (mode === 'replace') {
+                const clearGroups = db.transaction(['groups'], 'readwrite').objectStore('groups').clear();
+                clearGroups.onsuccess = function() {
+                    const clearNotes = db.transaction(['notes'], 'readwrite').objectStore('notes').clear();
+                    clearNotes.onsuccess = function() {
+                        insertImportedData(importedData, mode);
+                    };
+                    clearNotes.onerror = function() {
+                        showNotification('数据清理失败', 'error');
+                    };
+                };
+                clearGroups.onerror = function() {
+                    showNotification('数据清理失败', 'error');
+                };
+            } else {
+                insertImportedData(importedData, mode);
+            }
+        }
+
+        // 插入导入的数据
+        function insertImportedData(data, mode) {
+            try {
+                const groupMap = new Map();
+                
+                const getGroupsRequest = db.transaction(['groups'], 'readonly').objectStore('groups').getAll();
+                
+                getGroupsRequest.onsuccess = function() {
+                    const existingGroups = getGroupsRequest.result;
+                    const existingGroupNames = new Set(existingGroups.map(g => g.name));
+                    
+                    const groupsTransaction = db.transaction(['groups'], 'readwrite');
+                    const groupsStore = groupsTransaction.objectStore('groups');
+                    
+                    let groupInsertCount = 0;
+                    const totalGroups = data.groups.length;
+                    
+                    if (totalGroups === 0) {
+                        processNotes();
+                        return;
+                    }
+                    
+                    data.groups.forEach((group, index) => {
+                        let groupName = group.name;
+                        
+                        if (mode === 'merge' && existingGroupNames.has(groupName)) {
+                            groupName = `${groupName}(导入)`;
+                        }
+                        
+                        const newGroup = {
+                            name: groupName,
+                            createdAt: group.createdAt || new Date(),
+                            updatedAt: group.updatedAt || new Date()
+                        };
+                        
+                        const addRequest = groupsStore.add(newGroup);
+                        addRequest.onsuccess = function(e) {
+                            groupMap.set(group.id, e.target.result);
+                            groupInsertCount++;
+                            
+                            if (groupInsertCount === totalGroups) {
+                                processNotes();
+                            }
+                        };
+                        addRequest.onerror = function() {
+                            showNotification('分组导入失败', 'error');
+                        };
+                    });
+                    
+                    function processNotes() {
+                        const getNotesRequest = db.transaction(['notes'], 'readonly').objectStore('notes').getAll();
+                        
+                        getNotesRequest.onsuccess = function() {
+                            const existingNotes = getNotesRequest.result;
+                            const existingNoteTitles = new Set(existingNotes.map(n => n.title));
+                            
+                            const notesTransaction = db.transaction(['notes'], 'readwrite');
+                            const notesStore = notesTransaction.objectStore('notes');
+                            
+                            let noteInsertCount = 0;
+                            const totalNotes = data.notes.length;
+                            
+                            if (totalNotes === 0) {
+                                notesTransaction.oncomplete = function() {
+                                    loadNotebookTree();
+                                    showNotification('数据恢复成功');
+                                };
+                                return;
+                            }
+                            
+                            data.notes.forEach(note => {
+                                let noteTitle = note.title;
+                                let noteGroupId = note.groupId ? groupMap.get(note.groupId) : null;
+                                
+                                if (mode === 'merge' && existingNoteTitles.has(noteTitle)) {
+                                    noteTitle = `${noteTitle}(导入)`;
+                                }
+                                
+                                const newNote = {
+                                    title: noteTitle,
+                                    groupId: noteGroupId,
+                                    content: note.content || JSON.stringify({ops: []}),
+                                    createdAt: note.createdAt || new Date(),
+                                    updatedAt: note.updatedAt || new Date()
+                                };
+                                
+                                const addNoteRequest = notesStore.add(newNote);
+                                addNoteRequest.onsuccess = function() {
+                                    noteInsertCount++;
+                                    if (noteInsertCount === totalNotes) {
+                                        notesTransaction.oncomplete = function() {
+                                            loadNotebookTree();
+                                            showNotification('数据恢复成功');
+                                        };
+                                    }
+                                };
+                                addNoteRequest.onerror = function() {
+                                    showNotification('笔记导入失败', 'error');
+                                };
+                            });
+                        };
+                        
+                        getNotesRequest.onerror = function() {
+                            showNotification('获取现有笔记失败', 'error');
+                        };
+                    }
+                };
+                
+                getGroupsRequest.onerror = function() {
+                    showNotification('数据恢复失败', 'error');
+                };
+                
+            } catch (error) {
+                console.error('数据导入错误:', error);
+                showNotification('数据恢复失败', 'error');
+            }
+        }
+		
+		function getCharWidth(c){
+			  const canvas = document.createElement('canvas');
+			  const context = canvas.getContext('2d');
+			  const metrics = context.measureText(c);
+			  return metrics.width;
+		}
+
+        // 页面卸载前检查未保存的更改
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '您有未保存的更改，确定要离开吗？';
+                return e.returnValue;
+            }
+        });
+    </script>
+</body>
+</html>
