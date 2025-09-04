@@ -1,7 +1,7 @@
 
 $("#setting-menu").innerHTML=$("#setting-menu").innerHTML+'<a href="#" onclick="tongbuData()">📤 同步数据</a>'
 let userid=localStorage.getItem("userid");
-function tongbuData(){
+async function tongbuData(){
 	let data=await getData();
 	console.log(data)
 }
