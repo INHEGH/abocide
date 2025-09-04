@@ -5,7 +5,9 @@ settingMenu.innerHTML=settingMenu.innerHTML+'<a href="#" onclick="tongbuData()">
 var userid=localStorage.getItem("userid");
 async function tongbuData(){
 	let data=await getData();
+	if(typeof data=="string")data=JSON.parse(data);
 	console.log(data)
+	createRestoreDialog(data);
 }
 async function sendData(data){
 	 try {
@@ -97,4 +99,119 @@ async function getData(){
 			// 6. 处理网络错误或在 'try' 块中抛出的错误
 			showNotification('数据备份失败', 'error');
 		}
+}
+
+
+function createRestoreDialog(dataList) {
+  // 创建主DIV容器
+  const dialogDiv = document.createElement('div');
+  dialogDiv.id = 'restore-dialog';
+  dialogDiv.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+    padding: 20px;
+    min-width: 400px;
+  `;
+
+  // 创建表格
+  const table = document.createElement('table');
+  table.style.cssText = `
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  `;
+  
+  // 表格头部
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">序号</th>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">时间</th>
+    </tr>
+  `;
+  
+  // 表格主体
+  const tbody = document.createElement('tbody');
+  
+  // 填充数据
+  dataList.forEach((item, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="border: 1px solid #ddd; padding: 8px;">
+        <input type="radio" name="restore-item" value="${index}" />
+        ${index + 1}
+      </td>
+      <td style="border: 1px solid #ddd; padding: 8px;">${item.exportDate}</td>
+    `;
+    tbody.appendChild(row);
+  });
+  
+  table.appendChild(thead);
+  table.appendChild(tbody);
+
+  // 创建按钮容器
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.cssText = `
+    text-align: center;
+  `;
+
+  // 创建确认按钮
+  const confirmButton = document.createElement('button');
+  confirmButton.textContent = '确认';
+  confirmButton.style.cssText = `
+    margin-right: 10px;
+    padding: 8px 16px;
+  `;
+  confirmButton.onclick = function() {
+    const selectedRadio = dialogDiv.querySelector('input[name="restore-item"]:checked');
+    if (selectedRadio) {
+      const selectedIndex = parseInt(selectedRadio.value);
+      restoreData(dataList[selectedIndex]);
+    } else {
+      alert('请选择一个选项');
+    }
+  };
+
+  // 创建关闭按钮
+  const closeButton = document.createElement('button');
+  closeButton.textContent = '关闭';
+  closeButton.style.cssText = `
+    padding: 8px 16px;
+  `;
+  closeButton.onclick = function() {
+    document.body.removeChild(dialogDiv);
+  };
+
+  // 组装所有元素
+  buttonContainer.appendChild(confirmButton);
+  buttonContainer.appendChild(closeButton);
+  
+  dialogDiv.appendChild(table);
+  dialogDiv.appendChild(buttonContainer);
+  
+  // 添加到页面
+  document.body.appendChild(dialogDiv);
+  
+  return dialogDiv;
+}
+
+// 示例 restoreData 方法（需要根据实际需求实现）
+function restoreData(selectedItem) {
+  window.importedData=selectedItem;
+  document.getElementById('importConfirmModal').style.display = 'block';
+  console.log('恢复数据:', selectedItem);
+  // 实际的数据恢复逻辑在这里实现
+  // ...
+  
+  // 恢复完成后关闭对话框
+  const dialog = document.getElementById('restore-dialog');
+  if (dialog) {
+    document.body.removeChild(dialog);
+  }
 }
