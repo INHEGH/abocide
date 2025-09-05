@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>本地记事本</title>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
-<!-- Include the highlight.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <!--script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script-->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.2/quill.min.js" referrerpolicy="no-referrer"></script>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/2.0.2/quill.snow.css" rel="stylesheet">
-    <!--link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet"-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+	
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wangeditor5/5.1.23/index.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/wangeditor5/5.1.23/css/style.min.css" rel="stylesheet">
+	
+    <!--script src="https://cdn.jsdelivr.net/npm/@wangeditor/editor@5.1.23/dist/index.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@wangeditor/editor@5.1.23/dist/css/style.css" rel="stylesheet" -->
+	
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-	
     <style>
         :root {
             --header-height: 10%;
@@ -26,7 +27,6 @@
             --border-color: #ddd;
             --hover-bg: #f0f0f0;
         }
-
         .dark-mode {
             --header-bg: #2c3e50;
             --nav-bg: #34495e;
@@ -35,13 +35,11 @@
             --border-color: #4a5f7a;
             --hover-bg: #3d566e;
         }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Arial', sans-serif;
             height: 100vh;
@@ -50,7 +48,6 @@
             background-color: var(--main-bg);
             transition: background-color 0.3s ease;
         }
-
         /* 头部样式 */
         .header {
             height: var(--header-height);
@@ -63,7 +60,6 @@
             transition: background-color 0.3s ease;
             position: relative;
         }
-
         .title {
             font-size: 20px;
             font-weight: bold;
@@ -71,7 +67,6 @@
             position: absolute;
             left: 20px;
         }
-
         .header-date {
             text-align: center;
             color: var(--text-color);
@@ -79,18 +74,15 @@
             flex-direction: column;
             align-items: center;
         }
-
         .date-time-container {
             display: flex;
             align-items: center;
             gap: 15px;
             font-size: 14px;
         }
-
         .date-display {
             white-space: nowrap;
         }
-
         .header-actions {
             position: absolute;
             right: 20px;
@@ -98,7 +90,6 @@
             align-items: center;
             gap: 10px;
         }
-
         .action-icon {
             background: var(--primary-color);
             color: white;
@@ -112,17 +103,14 @@
             justify-content: center;
             font-size: 16px;
         }
-
         .action-icon:hover {
             opacity: 0.8;
         }
-
         /* 下拉菜单 */
         .dropdown {
             position: relative;
             display: inline-block;
         }
-
         .dropdown-content {
             display: none;
             position: absolute;
@@ -136,7 +124,6 @@
             border: 1px solid var(--border-color);
             margin-top: 5px;
         }
-
         .dropdown-content a {
             color: var(--text-color);
             padding: 12px 16px;
@@ -144,21 +131,17 @@
             display: block;
             font-size: 14px;
         }
-
         .dropdown-content a:hover {
             background-color: var(--hover-bg);
         }
-
         .dropdown.show .dropdown-content {
             display: block;
         }
-
         /* 主容器 */
         .container {
             display: flex;
             height: calc(100vh - var(--header-height));
         }
-
         /* 导航栏 */
         .nav-container {
             width: var(--nav-width);
@@ -169,14 +152,12 @@
             transition: all 0.3s ease;
             position: relative;
         }
-
         .nav-hidden .nav-container {
             width: 0;
             border-right: none;
             overflow: hidden;
             padding: 0;
         }
-
         .nav-header {
             padding: 15px;
             border-bottom: 1px solid var(--border-color);
@@ -184,16 +165,13 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .nav-hidden .nav-header {
             padding: 10px;
         }
-
         .nav-hidden .nav-header span,
         .nav-hidden .nav-content {
             display: none;
         }
-
         .toggle-nav {
             background: var(--primary-color);
             color: white;
@@ -207,13 +185,11 @@
             justify-content: center;
             font-size: 12px;
         }
-
         .nav-content {
             flex: 1;
             overflow-y: auto;
             padding: 10px;
         }
-
         .tree-node {
             margin: 5px 0;
             cursor: pointer;
@@ -222,28 +198,23 @@
             position: relative;
             user-select: none;
         }
-
         .group-node {
             font-weight: bold;
             margin-bottom: 8px;
             background-color: rgba(76, 175, 80, 0.1);
         }
-
         .note-node {
             margin-left: 20px;
             padding: 6px 8px;
             border-radius: 3px;
         }
-
         .tree-node:hover {
             background-color: var(--hover-bg);
         }
-
         .tree-node.active {
             background-color: var(--primary-color);
             color: white;
         }
-
         .node-actions {
             position: absolute;
             right: 5px;
@@ -251,11 +222,9 @@
             transform: translateY(-50%);
             display: none;
         }
-
         .tree-node:hover .node-actions {
             display: block;
         }
-
         .node-action-btn {
             background: none;
             border: none;
@@ -265,27 +234,22 @@
             font-size: 14px;
             margin-left: 5px;
         }
-
         .delete-btn {
             color: #f44336;
         }
-
         .add-note-btn {
             color: var(--primary-color);
         }
-
         .drag-over {
             background-color: #e8f5e8 !important;
             border: 2px dashed var(--primary-color);
         }
-
         .nav-add-group {
             padding: 15px;
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: center;
         }
-
         .nav-add-btn {
             width: 100%;
             height: 36px;
@@ -299,11 +263,9 @@
             align-items: center;
             justify-content: center;
         }
-
         .nav-add-btn:hover {
             opacity: 0.8;
         }
-
         /* 折叠时的悬浮按钮 */
         .nav-toggle-float {
             position: fixed;
@@ -322,11 +284,9 @@
             z-index: 100;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-
         .nav-hidden .nav-toggle-float {
             display: flex;
         }
-
         /* 主体内容 */
         .main-container {
             flex: 1;
@@ -336,11 +296,9 @@
             transition: background-color 0.3s ease;
             height: 100%;
         }
-
         .nav-hidden .main-container {
             margin-left: 0;
         }
-
         .editor-header {
             padding: 15px 20px;
             border-bottom: 1px solid var(--border-color);
@@ -349,18 +307,15 @@
             align-items: center;
             background-color: var(--header-bg);
         }
-
         .editor-title {
             font-size: 18px;
             font-weight: bold;
         }
-
         .editor-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
-
         .action-btn {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
@@ -370,49 +325,46 @@
             cursor: pointer;
             white-space: nowrap;
         }
-
         .action-btn:hover {
             background: var(--hover-bg);
         }
-
         .editor-container {
             flex: 1;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        #editor {
-            height: 96%;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
-
-        .ql-toolbar {
-            border-radius: 4px 4px 0 0;
+        #editor-toolbar {
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
         }
-
-        .ql-container {
+        #editor {
             flex: 1;
-            border-radius: 0 0 4px 4px;
+            background: white;
+            border: none;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-
-        .ql-editor {
+        .w-e-toolbar {
+            border-radius: 0;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .w-e-text-container {
+            flex: 1;
+            border-radius: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .w-e-scroll {
             flex: 1;
             overflow: auto;
             padding: 12px;
         }
-
         /* 代码块样式 */
-        .ql-snow .ql-editor pre.ql-syntax {
+        .w-e-text-container [data-slate-editor] pre code {
             background-color: #23241f;
             color: #f8f8f2;
             overflow: visible;
@@ -422,11 +374,9 @@
             font-size: 14px;
             line-height: 1.5;
         }
-
-        .dark-mode .ql-snow .ql-editor pre.ql-syntax {
+        .dark-mode .w-e-text-container [data-slate-editor] pre code {
             background-color: #1e1e1e;
         }
-
         /* 模态框 */
         .modal {
             display: none;
@@ -438,7 +388,6 @@
             height: 100%;
             background-color: rgba(0,0,0,0.5);
         }
-
         .modal-content {
             background-color: var(--nav-bg);
             margin: 15% auto;
@@ -448,12 +397,10 @@
             width: 400px;
             max-width: 90%;
         }
-
         .modal h3 {
             margin-bottom: 15px;
             color: var(--text-color);
         }
-
         .modal-input {
             width: 100%;
             padding: 12px;
@@ -464,12 +411,10 @@
             color: var(--text-color);
             font-size: 14px;
         }
-
         .modal-buttons {
             text-align: right;
             margin-top: 20px;
         }
-
         .modal-btn {
             margin-left: 10px;
             padding: 10px 20px;
@@ -478,22 +423,18 @@
             cursor: pointer;
             font-size: 14px;
         }
-
         .confirm-btn {
             background: var(--primary-color);
             color: white;
         }
-
         .cancel-btn {
             background: #ccc;
             color: #333;
         }
-
         .danger-btn {
             background: #f44336;
             color: white;
         }
-
         /* 提示信息 */
         .notification {
             position: fixed;
@@ -507,21 +448,17 @@
             z-index: 1001;
             display: none;
         }
-
         /* 查看模式样式 */
-        .view-mode .ql-editor {
+        .view-mode .w-e-text-container {
             background-color: #f9f9f9;
         }
-
-        .dark-mode .view-mode .ql-editor {
+        .dark-mode .view-mode .w-e-text-container {
             background-color: #3a4d66;
         }
-
         /* 拖拽样式 */
         [draggable] {
             cursor: move;
         }
-
         /* 重命名输入框 */
         .rename-input {
             width: 100%;
@@ -533,13 +470,11 @@
             font-size: inherit;
             font-weight: inherit;
         }
-
         /* 导出下拉按钮 */
         .export-dropdown {
             position: relative;
             display: inline-block;
         }
-
         .export-btn {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
@@ -551,7 +486,6 @@
             align-items: center;
             gap: 5px;
         }
-
         .export-dropdown-content {
             display: none;
             position: absolute;
@@ -565,7 +499,6 @@
             border: 1px solid var(--border-color);
             margin-top: 5px;
         }
-
         .export-dropdown-content a {
             color: var(--text-color);
             padding: 10px 15px;
@@ -573,15 +506,12 @@
             display: block;
             font-size: 14px;
         }
-
         .export-dropdown-content a:hover {
             background-color: var(--hover-bg);
         }
-
         .export-dropdown.show .export-dropdown-content {
             display: block;
         }
-
         /* 主题切换按钮 */
         .theme-toggle {
             background: var(--primary-color);
@@ -595,17 +525,56 @@
             width: 100%;
             text-align: left;
         }
-
         .theme-toggle:hover {
             opacity: 0.8;
         }
-
         /* 折叠图标 */
         .group-toggle {
             margin-right: 5px;
             font-size: 12px;
             cursor: pointer;
             user-select: none;
+        }
+        /* 源码编辑器 */
+        #source-editor {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #source-textarea {
+            flex: 1;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            resize: none;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            background: #f5f5f5;
+            color: #333;
+            overflow: auto;
+        }
+        .dark-mode #source-textarea {
+            background: #1e1e1e;
+            color: #f8f8f2;
+        }
+        .source-editor-toolbar {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--header-bg);
+            display: flex;
+            gap: 10px;
+        }
+        .source-editor-toolbar button {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--nav-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .source-editor-toolbar button:hover {
+            background: var(--hover-bg);
         }
     </style>
 </head>
@@ -629,7 +598,6 @@
             </div>
         </div>
     </div>
-
     <!-- 主容器 -->
     <div class="container" id="mainContainer">
         <!-- 导航栏 -->
@@ -645,18 +613,16 @@
                 <button class="nav-add-btn" onclick="addDefaultGroup()">+</button>
             </div>
         </div>
-
         <!-- 悬浮的导航栏切换按钮 -->
         <button class="nav-toggle-float" onclick="toggleNav()">☰</button>
-
         <!-- 主体内容 -->
         <div class="main-container">
             <div class="editor-header">
                 <div class="editor-title" id="currentNoteTitle">请选择或创建记事本</div>
                 <div class="editor-actions">
                     <button class="action-btn" onclick="toggleEditMode()" id="editToggleBtn">📝 编辑模式</button>
+                    <button class="action-btn" onclick="toggleSourceMode()" id="sourceToggleBtn">💻 源码模式</button>
                     <button class="action-btn" onclick="saveCurrentNote()">💾 保存</button>
-                    
                     <!-- 导出下拉菜单 -->
                     <div class="export-dropdown" id="exportDropdown">
                         <button class="export-btn" onclick="toggleExportDropdown()">
@@ -671,11 +637,18 @@
                 </div>
             </div>
             <div class="editor-container">
+                <div id="editor-toolbar"></div>
                 <div id="editor"></div>
+                <div id="source-editor">
+                    <div class="source-editor-toolbar">
+                        <button onclick="saveSourceCode()">💾 保存源码</button>
+                        <button onclick="cancelSourceMode()">❌ 取消</button>
+                    </div>
+                    <textarea id="source-textarea"></textarea>
+                </div>
             </div>
         </div>
     </div>
-
     <!-- 添加分组模态框 -->
     <div id="addGroupModal" class="modal">
         <div class="modal-content">
@@ -687,7 +660,6 @@
             </div>
         </div>
     </div>
-
     <!-- 确认保存模态框 -->
     <div id="confirmSaveModal" class="modal">
         <div class="modal-content">
@@ -700,7 +672,6 @@
             </div>
         </div>
     </div>
-
     <!-- 导入确认模态框 -->
     <div id="importConfirmModal" class="modal">
         <div class="modal-content">
@@ -715,7 +686,6 @@
             </div>
         </div>
     </div>
-
     <!-- 删除确认模态框 -->
     <div id="deleteConfirmModal" class="modal">
         <div class="modal-content">
@@ -727,14 +697,12 @@
             </div>
         </div>
     </div>
-
     <!-- 提示信息 -->
     <div class="notification" id="notification"></div>
-
     <script>
         // 全局变量
         let db;
-        let quill;
+        let editor;
         let currentNote = null;
         let isEditing = false;
         let isNavCollapsed = false;
@@ -747,27 +715,25 @@
         let groupStates = {}; // 记录分组折叠状态
         let clickTimer = null;
         let clickCount = 0;
-		let spaceCharWidth=-1;
-
+        let spaceCharWidth=-1;
+        let isSourceMode = false;
+        
         // 初始化应用
         document.addEventListener('DOMContentLoaded', function() {
             initDB();
-            initQuill();
+            initWangEditor();
             updateDateTime();
             setInterval(updateDateTime, 1000);
-            
             // 从localStorage恢复最后的状态
             const savedNoteId = localStorage.getItem('lastActiveNoteId');
             if (savedNoteId) {
                 lastActiveNoteId = parseInt(savedNoteId);
             }
-            
             // 恢复分组折叠状态
             const savedGroupStates = localStorage.getItem('groupStates');
             if (savedGroupStates) {
                 groupStates = JSON.parse(savedGroupStates);
             }
-            
             // 恢复主题设置
             const savedTheme = localStorage.getItem('notebookTheme');
             if (savedTheme === 'dark') {
@@ -778,7 +744,6 @@
                     themeBtn.innerHTML = '☀️ 白天模式';
                 }
             }
-            
             // 点击其他地方关闭下拉菜单
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.dropdown')) {
@@ -787,12 +752,7 @@
                 if (!e.target.closest('.export-dropdown')) {
                     closeExportDropdown();
                 }
-                //if (renamingNode && !e.target.closest('.rename-input')) {				console.log(e.target,"xxxxxxxxxxxxxxxxxx");
-
-               //     finishRename();
-               // }
             });
-            
             // 添加快捷键监听
             document.addEventListener('keydown', function(e) {
                 // Ctrl+S 保存
@@ -801,43 +761,40 @@
                     saveCurrentNote();
                 }
             });
-			
-			if(localStorage.getItem("userid")){
-				 loadScript('tongbu.js');
-			}
+            if(localStorage.getItem("userid")){
+                 loadScript('tongbu.js');
+            }
         });
-
+        
         // 切换设置下拉菜单
         function toggleSettingsDropdown() {
             const dropdown = document.getElementById('settingsDropdown');
             dropdown.classList.toggle('show');
         }
-
+        
         // 关闭设置下拉菜单
         function closeSettingsDropdown() {
             document.getElementById('settingsDropdown').classList.remove('show');
         }
-
+        
         // 切换导出下拉菜单
         function toggleExportDropdown() {
             const dropdown = document.getElementById('exportDropdown');
             dropdown.classList.toggle('show');
         }
-
+        
         // 关闭导出下拉菜单
         function closeExportDropdown() {
             document.getElementById('exportDropdown').classList.remove('show');
         }
-
+        
         // 初始化IndexedDB
         function initDB() {
             const request = indexedDB.open('NotebookDB', 3);
-            
             request.onerror = function(event) {
                 console.error('数据库打开失败:', event.target.error);
                 showNotification('数据库初始化失败', 'error');
             };
-            
             request.onsuccess = function(event) {
                 db = event.target.result;
                 loadNotebookTree();
@@ -848,15 +805,12 @@
                     }, 100);
                 }
             };
-            
             request.onupgradeneeded = function(event) {
                 db = event.target.result;
-                
                 if (!db.objectStoreNames.contains('groups')) {
                     const groupStore = db.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
                     groupStore.createIndex('name', 'name', { unique: false });
                 }
-                
                 if (!db.objectStoreNames.contains('notes')) {
                     const noteStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
                     noteStore.createIndex('groupId', 'groupId', { unique: false });
@@ -864,94 +818,39 @@
                 }
             };
         }
-
-        // 初始化Quill编辑器（添加代码块功能）
-        function initQuill() {
-            quill = new Quill('#editor', {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        //[{ 'header': [1, 2, 3, false] }],
-						[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'indent': '-1'}, { 'indent': '+1' }],
-                        [{ 'align': [] }], 
-                        ['link', 'image'],
-						['formula','code-block'],
-                        [{'cust-hr':{text:"─",act:function(){
-							    const range = quill.getSelection();
-								const index = range ? range.index : quill.getLength();
-								quill.insertEmbed(index, 'hr', true);
-								quill.setSelection(index + 2);
-						}}},{'cust-repeat':{text:"⬇",act:function(){
-							    const range = quill.getSelection();
-								const index = range ? range.index : quill.getLength();
-								var inputA=window.prompt("请输入要重复插入的值，重复数量，如：* 10");
-								if(inputA.trim().length<1 && inputA!=" "&& inputA!="  ") return ;
-								if(inputA==" "||inputA=="  "){
-									inputA=[" "];
-								}else{
-									inputA=inputA.replaceAll("    ","").replaceAll("   ","").replaceAll("  ","").split(" ");
-								}
-								let cnt=1;
-								if(inputA.length<2){
-									cnt=quill.container.clientWidth/getCharWidth(inputA[0]);
-								}else{
-									cnt=inputA[1]*1;
-								}
-								let d=quill.insertText(index + 1, inputA[0].repeat(cnt),
-									{ 'background': 'rgba(229, 229, 222, 0.65)', size: 'small' }
-								);
-								quill.setSelection(index + 2);
-						}}},'blockquote','clean']
-                    ],
-                    syntax: true,
-					
-                },
-                placeholder: '开始编写您的记事本...'
+        
+        // 初始化WangEditor编辑器
+        function initWangEditor() {
+            const { createEditor, createToolbar } = window.wangEditor;
+            
+            editor = createEditor({
+                selector: '#editor',
+                html: '<p><br></p>',
+                config: {
+                    placeholder: '开始编写您的记事本...',
+                    onChange(editor) {
+                        hasUnsavedChanges = true;
+                        updateSaveButton();
+                    }
+                }
             });
-
+            
+            const toolbar = createToolbar({
+                editor,
+                selector: '#editor-toolbar',
+                config: {
+                    excludeKeys: [
+                        'group-video',
+                        'insertImage'
+                    ]
+                }
+            });
+            
             // 设置默认为查看模式
-            quill.enable(false);
+            editor.disable();
             updateViewMode();
-			
-			let HrBlockEmbed = Quill.import('blots/block/embed');
-			class DividerBlot extends HrBlockEmbed { }
-			DividerBlot.blotName = 'hr';
-			DividerBlot.tagName = 'hr';
-			Quill.register(DividerBlot);
-			
-            // 监听编辑器内容变化
-            quill.on('text-change', function() {
-                hasUnsavedChanges = true;
-                updateSaveButton();
-            });
-			
-			(quill.options.modules.toolbar.container||[]).forEach((t,i)=>{
-				if(Array.isArray(t)){
-					t.forEach((t1,i1)=>{
-						 for(var k in t1){
-							if(k.startsWith("cust-")){
-								console.log(k,t1);
-								let ks=document.querySelectorAll("button.ql-"+k);
-								if(ks){
-									ks[0].innerHTML=t1[k].text;
-									ks[0].addEventListener('click', (e) => {
-									e.preventDefault(); // 阻止默认行为（如表单提交）
-									t1[k].act(t1[k]);
-								});
-								}
-								
-							}
-						 }
-					});
-				}
-			})
-			
         }
-
+        
         // 更新查看模式样式
         function updateViewMode() {
             const editorContainer = document.querySelector('.main-container');
@@ -961,7 +860,7 @@
                 editorContainer.classList.remove('view-mode');
             }
         }
-
+        
         // 更新日期时间显示
         function updateDateTime() {
             const now = new Date();
@@ -972,10 +871,9 @@
             });
             const weekStr = now.toLocaleDateString('zh-CN', { weekday: 'long' });
             const timeStr = now.toLocaleTimeString('zh-CN');
-            
             document.getElementById('currentDate').textContent = `${dateStr} ${weekStr} ${timeStr}`;
         }
-
+        
         // 切换主题
         function toggleTheme() {
             isDarkMode = !isDarkMode;
@@ -996,12 +894,11 @@
             localStorage.setItem('notebookTheme', isDarkMode ? 'dark' : 'light');
             closeSettingsDropdown();
         }
-
+        
         // 切换导航栏
         function toggleNav() {
             const container = document.getElementById('mainContainer');
             isNavCollapsed = !isNavCollapsed;
-            
             if (isNavCollapsed) {
                 container.classList.add('nav-hidden');
                 document.querySelector('.toggle-nav').textContent = '▶';
@@ -1010,62 +907,101 @@
                 document.querySelector('.toggle-nav').textContent = '◀';
             }
         }
-
+        
         // 切换编辑模式
         function toggleEditMode() {
             isEditing = !isEditing;
             const btn = document.getElementById('editToggleBtn');
-            
             if (isEditing) {
                 btn.textContent = '👁️ 查看模式';
-                quill.enable(true);
+                editor.enable();
             } else {
                 btn.textContent = '📝 编辑模式';
-                quill.enable(false);
+                editor.disable();
             }
             updateViewMode();
         }
-
+        
+        // 切换源码模式
+        function toggleSourceMode() {
+            isSourceMode = !isSourceMode;
+            const btn = document.getElementById('sourceToggleBtn');
+            const editorElement = document.getElementById('editor');
+            const toolbarElement = document.getElementById('editor-toolbar');
+            const sourceEditorElement = document.getElementById('source-editor');
+            const sourceTextarea = document.getElementById('source-textarea');
+            
+            if (isSourceMode) {
+                btn.textContent = '📝 编辑模式';
+                editorElement.style.display = 'none';
+                toolbarElement.style.display = 'none';
+                sourceEditorElement.style.display = 'flex';
+                // 获取当前HTML内容并显示在textarea中
+                sourceTextarea.value = editor.getHtml();
+                sourceTextarea.focus();
+            } else {
+                btn.textContent = '💻 源码模式';
+                editorElement.style.display = 'block';
+                toolbarElement.style.display = 'block';
+                sourceEditorElement.style.display = 'none';
+            }
+        }
+        
+        // 保存源码
+        function saveSourceCode() {
+            if (!currentNote) {
+                showNotification('请先选择或创建记事本', 'error');
+                return;
+            }
+            const sourceTextarea = document.getElementById('source-textarea');
+            const htmlContent = sourceTextarea.value;
+            editor.setHtml(htmlContent);
+            saveCurrentNote();
+            toggleSourceMode(); // 切换回编辑模式
+        }
+        
+        // 取消源码模式
+        function cancelSourceMode() {
+            toggleSourceMode(); // 切换回编辑模式
+        }
+        
         // 显示通知
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
             notification.style.background = type === 'error' ? '#f44336' : '#4CAF50';
-            
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 3000);
         }
-
+        
         // 添加默认分组
         function addDefaultGroup() {
             const transaction = db.transaction(['groups'], 'readwrite');
             const store = transaction.objectStore('groups');
             const group = { name: '默认分组', createdAt: new Date() };
-
             const request = store.add(group);
             request.onsuccess = function() {
                 loadNotebookTree();
                 showNotification('分组添加成功');
             };
-            
             request.onerror = function() {
                 showNotification('分组添加失败', 'error');
             };
         }
-
+        
         // 显示添加分组模态框
         function showAddGroupModal() {
             document.getElementById('groupNameInput').value = '';
             document.getElementById('addGroupModal').style.display = 'block';
         }
-
+        
         // 关闭模态框
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
-
+        
         // 添加分组
         function addGroup() {
             const groupName = document.getElementById('groupNameInput').value.trim();
@@ -1073,23 +1009,20 @@
                 showNotification('请输入分组名称', 'error');
                 return;
             }
-
             const transaction = db.transaction(['groups'], 'readwrite');
             const store = transaction.objectStore('groups');
             const group = { name: groupName, createdAt: new Date() };
-
             const request = store.add(group);
             request.onsuccess = function() {
                 closeModal('addGroupModal');
                 loadNotebookTree();
                 showNotification('分组添加成功');
             };
-            
             request.onerror = function() {
                 showNotification('分组添加失败', 'error');
             };
         }
-
+        
         // 在分组中添加默认笔记本
         function addDefaultNoteToGroup(groupId) {
             const transaction = db.transaction(['notes'], 'readwrite');
@@ -1097,11 +1030,10 @@
             const note = {
                 title: '默认笔记本',
                 groupId: groupId,
-                content: JSON.stringify({ops: []}),
+                content: '<p><br></p>',
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
-
             const request = store.add(note);
             request.onsuccess = function() {
                 loadNotebookTree();
@@ -1114,90 +1046,51 @@
                     }
                 }, 100);
             };
-            
             request.onerror = function() {
                 showNotification('笔记本添加失败', 'error');
             };
         }
-
-        // 处理单击和双击事件
-        function handleGroupClick(groupId, element, isToggleIcon) {
-			/*if (!isToggleIcon) {
-				startRename(element, 'group', element.dataset.groupName, groupId);
-			}else{
-				 toggleGroup(groupId);
-			}*/
-           
-/*		   if (clickTimer) {
-                clearTimeout(clickTimer);
-                clickTimer = null;
-                clickCount = 0;
-                // 双击事件 - 重命名
-                if (!isToggleIcon) {
-                    startRename(element, 'group', element.dataset.groupName, groupId);
-                }
-            } else {
-                clickCount = 1;
-                clickTimer = setTimeout(() => {
-                    if (clickCount === 1) {
-                        // 单击事件 - 切换折叠状态
-                        if (isToggleIcon) {
-                            toggleGroup(groupId);
-                        }
-                    }
-                    clickTimer = null;
-                    clickCount = 0;
-                }, 300);
-            }*/
-        }
-
+        
         // 切换分组折叠状态
         function toggleGroup(groupId) {
             groupStates[groupId] = !groupStates[groupId];
             localStorage.setItem('groupStates', JSON.stringify(groupStates));
             loadNotebookTree();
         }
-
+        
         // 加载笔记本树形结构（按名称排序）
         function loadNotebookTree() {
             const navContent = document.getElementById('navContent');
             navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">加载中...</div>';
-
             const groupsTransaction = db.transaction(['groups'], 'readonly');
             const groupsStore = groupsTransaction.objectStore('groups');
             const groupsRequest = groupsStore.getAll();
-
             groupsRequest.onsuccess = function() {
                 let groups = groupsRequest.result;
                 // 按名称排序
                 groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
-                
                 const notesTransaction = db.transaction(['notes'], 'readonly');
                 const notesStore = notesTransaction.objectStore('notes');
                 const notesRequest = notesStore.getAll();
-
                 notesRequest.onsuccess = function() {
                     let notes = notesRequest.result;
                     // 按标题排序
                     notes.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
                     renderNotebookTree(groups, notes);
                 };
-                
                 notesRequest.onerror = function() {
                     navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #f44336;">加载失败</div>';
                 };
             };
-            
             groupsRequest.onerror = function() {
                 navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #f44336;">加载失败</div>';
             };
         }
-
+        
         // 渲染笔记本树形结构
         function renderNotebookTree(groups, notes) {
             const navContent = document.getElementById('navContent');
             navContent.innerHTML = '';
-
             // 先显示未分组的记事本
             const ungroupedNotes = notes.filter(note => !note.groupId);
             if (ungroupedNotes.length > 0) {
@@ -1218,13 +1111,11 @@
                     }
                 };
                 navContent.appendChild(ungroupedDiv);
-
                 ungroupedNotes.forEach(note => {
                     const noteNode = createNoteNode(note);
                     navContent.appendChild(noteNode);
                 });
             }
-
             // 显示分组及其记事本
             groups.forEach(group => {
                 const isCollapsed = groupStates[group.id] || false;
@@ -1236,29 +1127,24 @@
                 `;
                 groupDiv.dataset.groupId = group.id;
                 groupDiv.dataset.groupName = group.name;
-                
                 // 处理单击和双击事件
                 groupDiv.onclick = function(e) {
                     const isToggleIcon = e.target.classList.contains('group-toggle');
-                   // handleGroupClick(group.id, groupDiv, isToggleIcon);
-					if (isToggleIcon)toggleGroup(group.id);
+                    if (isToggleIcon)toggleGroup(group.id);
                 };
-				groupDiv.ondblclick = function(e) {
+                groupDiv.ondblclick = function(e) {
                     const isToggleIcon = e.target.classList.contains('group-toggle');
-					if (!isToggleIcon)startRename(groupDiv, 'group', groupDiv.dataset.groupName, group.id);
+                    if (!isToggleIcon)startRename(groupDiv, 'group', groupDiv.dataset.groupName, group.id);
                 };
-                
                 // 添加拖拽事件
                 groupDiv.addEventListener('dragover', handleDragOver);
                 groupDiv.addEventListener('dragleave', handleDragLeave);
                 groupDiv.addEventListener('drop', function(e) {
                     handleDrop(e, group.id);
                 });
-
                 // 添加分组操作按钮
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'node-actions';
-                
                 const addNoteBtn = document.createElement('button');
                 addNoteBtn.className = 'node-action-btn add-note-btn';
                 addNoteBtn.innerHTML = '➕';
@@ -1267,7 +1153,6 @@
                     e.stopPropagation();
                     addDefaultNoteToGroup(group.id);
                 };
-                
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'node-action-btn delete-btn';
                 deleteBtn.innerHTML = '🗑️';
@@ -1276,13 +1161,10 @@
                     e.stopPropagation();
                     showDeleteConfirm('group', group.id, group.name);
                 };
-                
                 actionsDiv.appendChild(addNoteBtn);
                 actionsDiv.appendChild(deleteBtn);
                 groupDiv.appendChild(actionsDiv);
-
                 navContent.appendChild(groupDiv);
-
                 // 只有在分组展开时才显示其中的笔记
                 if (!isCollapsed) {
                     const groupedNotes = notes.filter(note => note.groupId === group.id);
@@ -1292,13 +1174,12 @@
                     });
                 }
             });
-
             // 如果没有任何数据，显示提示
             if (groups.length === 0 && notes.length === 0) {
                 navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">暂无数据<br>点击下方 + 按钮添加分组</div>';
             }
         }
-
+        
         // 创建记事本节点
         function createNoteNode(note) {
             const noteNode = document.createElement('div');
@@ -1307,22 +1188,17 @@
             noteNode.dataset.noteId = note.id;
             noteNode.dataset.groupId = note.groupId || 'null';
             noteNode.draggable = true;
-            
             // 添加拖拽事件
             noteNode.addEventListener('dragstart', handleDragStart);
-            
             noteNode.onclick = () => handleNoteClick(note.id);
-            
             if (currentNote && currentNote.id === note.id) {
                 noteNode.classList.add('active');
             }
-
             // 双击重命名
             noteNode.ondblclick = function(e) {
                 e.stopPropagation();
                 startRename(noteNode, 'note', note.title, note.id);
             };
-
             // 添加记事本操作按钮
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'node-actions';
@@ -1336,25 +1212,21 @@
             };
             actionsDiv.appendChild(deleteBtn);
             noteNode.appendChild(actionsDiv);
-
             return noteNode;
         }
-
+        
         // 开始重命名
         function startRename(node, type, currentName, id) {
             if (renamingNode) {
                 finishRename();
             }
-            
             renamingNode = { node, type, id, originalName: currentName };
-            
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'rename-input';
             input.value = currentName;
             input.dataset.renameType = type;
             input.dataset.renameId = id;
-            
             input.onkeydown = function(e) {
                 if (e.key === 'Enter') {
                     finishRename();
@@ -1362,43 +1234,37 @@
                     cancelRename();
                 }
             };
-            
             input.onblur = finishRename;
             node.innerHTML = '';
             node.appendChild(input);
             input.focus();
             input.select();
         }
-
+        
         // 完成重命名
         function finishRename() {
             if (!renamingNode) return;
-            
             const input = renamingNode.node.querySelector('.rename-input');
             if (!input) {
                 cancelRename();
                 return;
             }
-            
             const newName = input.value.trim();
             if (!newName || newName === renamingNode.originalName) {
                 cancelRename();
                 return;
             }
-            
             if (renamingNode.type === 'group') {
                 updateGroupName(renamingNode.id, newName);
             } else {
                 updateNoteName(renamingNode.id, newName);
             }
-            
             renamingNode = null;
         }
-
+        
         // 取消重命名
         function cancelRename() {
             if (!renamingNode) return;
-            
             if (renamingNode.type === 'group') {
                 if (renamingNode.originalName === '未分组') {
                     renamingNode.node.innerHTML = '📁 未分组';
@@ -1413,11 +1279,9 @@
             } else {
                 renamingNode.node.innerHTML = `📝 ${renamingNode.originalName}`;
             }
-            
             if (renamingNode.type === 'group') {
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'node-actions';
-                
                 const addNoteBtn = document.createElement('button');
                 addNoteBtn.className = 'node-action-btn add-note-btn';
                 addNoteBtn.innerHTML = '➕';
@@ -1425,7 +1289,6 @@
                     e.stopPropagation();
                     addDefaultNoteToGroup(renamingNode.id);
                 };
-                
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'node-action-btn delete-btn';
                 deleteBtn.innerHTML = '🗑️';
@@ -1433,7 +1296,6 @@
                     e.stopPropagation();
                     showDeleteConfirm('group', renamingNode.id, renamingNode.originalName);
                 };
-                
                 actionsDiv.appendChild(addNoteBtn);
                 actionsDiv.appendChild(deleteBtn);
                 renamingNode.node.appendChild(actionsDiv);
@@ -1450,16 +1312,14 @@
                 actionsDiv.appendChild(deleteBtn);
                 renamingNode.node.appendChild(actionsDiv);
             }
-            
             renamingNode = null;
         }
-
+        
         // 更新分组名称
         function updateGroupName(groupId, newName) {
             const transaction = db.transaction(['groups'], 'readwrite');
             const store = transaction.objectStore('groups');
             const request = store.get(groupId);
-
             request.onsuccess = function() {
                 const group = request.result;
                 if (group) {
@@ -1475,18 +1335,16 @@
                     };
                 }
             };
-            
             request.onerror = function() {
                 showNotification('获取分组信息失败', 'error');
             };
         }
-
+        
         // 更新记事本名称
         function updateNoteName(noteId, newName) {
             const transaction = db.transaction(['notes'], 'readwrite');
             const store = transaction.objectStore('notes');
             const request = store.get(noteId);
-
             request.onsuccess = function() {
                 const note = request.result;
                 if (note) {
@@ -1506,55 +1364,50 @@
                     };
                 }
             };
-            
             request.onerror = function() {
                 showNotification('获取记事本信息失败', 'error');
             };
         }
-
+        
         // 拖拽开始
         function handleDragStart(e) {
             e.dataTransfer.setData('text/plain', e.target.dataset.noteId);
             e.target.style.opacity = '0.5';
         }
-
+        
         // 拖拽经过
         function handleDragOver(e) {
             e.preventDefault();
             e.currentTarget.classList.add('drag-over');
         }
-
+        
         // 拖拽离开
         function handleDragLeave(e) {
             e.currentTarget.classList.remove('drag-over');
         }
-
+        
         // 拖拽放置
         function handleDrop(e) {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
-            
             const noteId = e.dataTransfer.getData('text/plain');
             const targetGroupId = e.currentTarget.dataset.groupId === 'ungrouped' ? null : 
                                  (e.currentTarget.dataset.groupId ? parseInt(e.currentTarget.dataset.groupId) : null);
-            
             if (noteId) {
                 moveNoteToGroup(parseInt(noteId), targetGroupId);
             }
         }
-
+        
         // 移动记事本到分组
         function moveNoteToGroup(noteId, groupId) {
             const transaction = db.transaction(['notes'], 'readwrite');
             const store = transaction.objectStore('notes');
             const request = store.get(noteId);
-
             request.onsuccess = function() {
                 const note = request.result;
                 if (note) {
                     note.groupId = groupId;
                     note.updatedAt = new Date();
-                    
                     const updateRequest = store.put(note);
                     updateRequest.onsuccess = function() {
                         loadNotebookTree();
@@ -1568,12 +1421,11 @@
                     };
                 }
             };
-            
             request.onerror = function() {
                 showNotification('获取记事本信息失败', 'error');
             };
         }
-
+        
         // 显示删除确认
         function showDeleteConfirm(type, id, name) {
             deletePending = { type, id, name };
@@ -1583,41 +1435,35 @@
             document.getElementById('deleteMessage').textContent = message;
             document.getElementById('deleteConfirmModal').style.display = 'block';
         }
-
+        
         // 确认删除
         function confirmDelete() {
             if (!deletePending) return;
-            
             const { type, id, name } = deletePending;
-            
             if (type === 'group') {
                 deleteGroup(id);
             } else {
                 deleteNote(id);
             }
-            
             closeModal('deleteConfirmModal');
             deletePending = null;
         }
-
+        
         // 删除分组
         function deleteGroup(groupId) {
             const transaction = db.transaction(['notes'], 'readonly');
             const store = transaction.objectStore('notes');
             const index = store.index('groupId');
             const request = index.getAll(groupId);
-
             request.onsuccess = function() {
                 const notesInGroup = request.result;
                 if (notesInGroup.length > 0) {
                     showNotification('分组下有记事本，不能直接删除', 'error');
                     return;
                 }
-
                 const deleteTransaction = db.transaction(['groups'], 'readwrite');
                 const deleteStore = deleteTransaction.objectStore('groups');
                 const deleteRequest = deleteStore.delete(groupId);
-
                 deleteRequest.onsuccess = function() {
                     // 删除分组状态记录
                     delete groupStates[groupId];
@@ -1625,41 +1471,36 @@
                     loadNotebookTree();
                     showNotification('分组删除成功');
                 };
-                
                 deleteRequest.onerror = function() {
                     showNotification('分组删除失败', 'error');
                 };
             };
-            
             request.onerror = function() {
                 showNotification('检查分组内容失败', 'error');
             };
         }
-
+        
         // 删除记事本
         function deleteNote(noteId) {
             const transaction = db.transaction(['notes'], 'readwrite');
             const store = transaction.objectStore('notes');
             const request = store.delete(noteId);
-
             request.onsuccess = function() {
                 if (currentNote && currentNote.id === noteId) {
                     currentNote = null;
                     document.getElementById('currentNoteTitle').textContent = '请选择或创建记事本';
-                    quill.setContents({ops: []});
+                    editor.setHtml('<p><br></p>');
                     hasUnsavedChanges = false;
                     localStorage.removeItem('lastActiveNoteId');
                 }
-                
                 loadNotebookTree();
                 showNotification('记事本删除成功');
             };
-            
             request.onerror = function() {
                 showNotification('记事本删除失败', 'error');
             };
         }
-
+        
         // 处理记事本点击
         function handleNoteClick(noteId) {
             if (hasUnsavedChanges && currentNote && currentNote.id !== noteId) {
@@ -1669,26 +1510,23 @@
                 openNote(noteId);
             }
         }
-
+        
         // 打开记事本
         function openNote(noteId) {
             const transaction = db.transaction(['notes'], 'readonly');
             const store = transaction.objectStore('notes');
             const request = store.get(noteId);
-
             request.onsuccess = function() {
                 currentNote = request.result;
                 if (currentNote) {
                     document.getElementById('currentNoteTitle').textContent = currentNote.title;
-                    const content = currentNote.content ? JSON.parse(currentNote.content) : {ops: []};
-                    quill.setContents(content);
+                    const content = currentNote.content || '<p><br></p>';
+                    editor.setHtml(content);
                     hasUnsavedChanges = false;
                     updateSaveButton();
-                    
                     if (isEditing) {
                         toggleEditMode();
                     }
-                    
                     document.querySelectorAll('.tree-node').forEach(node => {
                         node.classList.remove('active');
                     });
@@ -1696,47 +1534,41 @@
                     if (activeNode) {
                         activeNode.classList.add('active');
                     }
-                    
                     lastActiveNoteId = noteId;
                     localStorage.setItem('lastActiveNoteId', noteId.toString());
                 }
             };
-            
             request.onerror = function() {
                 showNotification('打开记事本失败', 'error');
             };
         }
-
+        
         // 更新保存按钮状态
         function updateSaveButton() {
         }
-
+        
         // 保存当前记事本
         function saveCurrentNote() {
             if (!currentNote) {
                 showNotification('请先选择或创建记事本', 'error');
                 return;
             }
-
-            const content = JSON.stringify(quill.getContents());
+            const content = editor.getHtml();
             currentNote.content = content;
             currentNote.updatedAt = new Date();
-
             const transaction = db.transaction(['notes'], 'readwrite');
             const store = transaction.objectStore('notes');
             const request = store.put(currentNote);
-
             request.onsuccess = function() {
                 hasUnsavedChanges = false;
                 updateSaveButton();
                 showNotification('保存成功！');
             };
-            
             request.onerror = function() {
                 showNotification('保存失败', 'error');
             };
         }
-
+        
         // 不保存更改
         function discardChanges() {
             hasUnsavedChanges = false;
@@ -1746,7 +1578,7 @@
                 pendingNavigation = null;
             }
         }
-
+        
         // 保存并继续
         function saveAndContinue() {
             if (currentNote) {
@@ -1760,24 +1592,22 @@
                 }
             }, 300);
         }
-
-		function loadScript(src) {
-			return new Promise((resolve, reject) => {
-				// 防止重复加载
-				if (document.querySelector(`script[src="${src}"]`)) {
-					resolve();
-					return;
-				}
-
-				const script = document.createElement('script');
-				script.src = src;
-
-				script.onload = () => resolve();
-				script.onerror = () => reject(new Error(`加载失败: ${src}`));
-
-				document.head.appendChild(script);
-			});
-		}
+        
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                // 防止重复加载
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error(`加载失败: ${src}`));
+                document.head.appendChild(script);
+            });
+        }
+        
         // 导出为PDF
       async  function exportToPDF() {
             if (!currentNote) {
@@ -1785,46 +1615,37 @@
                 closeExportDropdown();
                 return;
             }
-
             try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 if(typeof fontBase64==="undefined"){
-						//await loadScript('https://gh-proxy.com/https://github.com/INHEGH/abocide/raw/refs/heads/main/notosans.raw');
-				}
-				
-				doc.addFileToVFS('NotoSansSC.ttf', fontBase64);
-				doc.addFont('NotoSansSC.ttf', 'NotoSansSC', 'normal');
-				doc.setFont('NotoSansSC');
+                     //await loadScript('https://gh-proxy.com/https://github.com/INHEGH/abocide/raw/refs/heads/main/notosans.raw');
+                }
+                doc.addFileToVFS('NotoSansSC.ttf', fontBase64);
+                doc.addFont('NotoSansSC.ttf', 'NotoSansSC', 'normal');
+                doc.setFont('NotoSansSC');
                 doc.setFontSize(16);
                 doc.text(currentNote.title, 10, 10);
-                
-				
-				        // 设置每页最大行数
-				const maxLinesPerPage = 40;
-				const lineHeight = 7; // 行高（毫米）
-				const marginTop = 30; // 第一行距离顶部的距离
-		
-                const content = quill.getText();
+                        // 设置每页最大行数
+                const maxLinesPerPage = 40;
+                const lineHeight = 7; // 行高（毫米）
+                const marginTop = 30; // 第一行距离顶部的距离
+                const content = editor.getText();
                 doc.setFontSize(12);
                 const lines = doc.splitTextToSize(content, 180);
-				    let y = marginTop;
-					let currentPage = 1;
-
-					lines.forEach((line, index) => {
-						if(line.trim()=="") return ;
-						// 如果超出页面，添加新页
-						if (y > 280) { // A4 页面高度约 297mm，留白
-							doc.addPage();
-							currentPage++;
-							y = 20; // 新页起始位置
-						}
-
-						doc.text(line, 10, y);
-						y += lineHeight;
-					});
-		
-                
+                    let y = marginTop;
+                    let currentPage = 1;
+                    lines.forEach((line, index) => {
+                        if(line.trim()=="") return ;
+                        // 如果超出页面，添加新页
+                        if (y > 280) { // A4 页面高度约 297mm，留白
+                            doc.addPage();
+                            currentPage++;
+                            y = 20; // 新页起始位置
+                        }
+                        doc.text(line, 10, y);
+                        y += lineHeight;
+                    });
                 doc.save(`${currentNote.title}.pdf`);
                 showNotification('PDF导出成功');
                 closeExportDropdown();
@@ -1833,7 +1654,7 @@
                 showNotification('PDF导出失败', 'error');
             }
         }
-
+        
         // 导出为HTML
         function exportToHTML() {
             if (!currentNote) {
@@ -1841,9 +1662,8 @@
                 closeExportDropdown();
                 return;
             }
-
             try {
-                const content = quill.root.innerHTML;
+                const content = editor.getHtml();
                 const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -1870,10 +1690,7 @@
             border-bottom: 2px solid #4CAF50;
             padding-bottom: 10px;
         }
-        .ql-editor {
-            min-height: 200px;
-        }
-        pre.ql-syntax {
+        .w-e-text-container [data-slate-editor] pre code {
             background-color: #23241f;
             color: #f8f8f2;
             padding: 10px;
@@ -1886,14 +1703,13 @@
 <body>
     <div class="container">
         <h1>${currentNote.title}</h1>
-        <div class="ql-editor">${content}</div>
+        <div class="w-e-text-container">${content}</div>
         <div style="margin-top: 30px; color: #666; font-size: 12px;">
             导出时间: ${new Date().toLocaleString('zh-CN')}
         </div>
     </div>
 </body>
 </html>`;
-
                 const blob = new Blob([htmlContent], { type: 'text/html' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1908,7 +1724,7 @@
                 showNotification('HTML导出失败', 'error');
             }
         }
-
+        
         // 导出为图片
         function exportToImage() {
             if (!currentNote) {
@@ -1916,7 +1732,6 @@
                 closeExportDropdown();
                 return;
             }
-
             try {
                 const exportContainer = document.createElement('div');
                 exportContainer.style.position = 'absolute';
@@ -1925,22 +1740,19 @@
                 exportContainer.style.padding = '30px';
                 exportContainer.style.background = 'white';
                 exportContainer.style.fontFamily = 'Arial, sans-serif';
-                
                 const title = document.createElement('h1');
                 title.textContent = currentNote.title;
                 title.style.color = '#333';
                 title.style.borderBottom = '2px solid #4CAF50';
                 title.style.paddingBottom = '10px';
                 title.style.marginBottom = '20px';
-                
-                const contentClone = quill.root.cloneNode(true);
+                const contentClone = document.createElement('div');
+                contentClone.innerHTML = editor.getHtml();
                 contentClone.style.minHeight = '200px';
                 contentClone.style.background = 'white';
-                
                 exportContainer.appendChild(title);
                 exportContainer.appendChild(contentClone);
                 document.body.appendChild(exportContainer);
-
                 html2canvas(exportContainer, {
                     backgroundColor: '#ffffff',
                     scale: 2,
@@ -1967,7 +1779,7 @@
                 showNotification('图片导出失败', 'error');
             }
         }
-
+        
         // 备份数据
         function backupData() {
             const exportObj = {
@@ -1975,18 +1787,14 @@
                 notes: [],
                 exportDate: new Date().toISOString()
             };
-
             const groupsTransaction = db.transaction(['groups'], 'readonly');
             const groupsStore = groupsTransaction.objectStore('groups');
             const groupsRequest = groupsStore.getAll();
-
             groupsRequest.onsuccess = function() {
                 exportObj.groups = groupsRequest.result;
-                
                 const notesTransaction = db.transaction(['notes'], 'readonly');
                 const notesStore = notesTransaction.objectStore('notes');
                 const notesRequest = notesStore.getAll();
-
                 notesRequest.onsuccess = function() {
                     exportObj.notes = notesRequest.result;
                     const dataStr = JSON.stringify(exportObj, null, 2);
@@ -1999,19 +1807,16 @@
                     URL.revokeObjectURL(url);
                     showNotification('数据备份成功');
                 };
-                
                 notesRequest.onerror = function() {
                     showNotification('数据备份失败', 'error');
                 };
             };
-            
             groupsRequest.onerror = function() {
                 showNotification('数据备份失败', 'error');
             };
-            
             closeSettingsDropdown();
         }
-
+        
         // 恢复数据
         function restoreData() {
             const input = document.createElement('input');
@@ -2020,7 +1825,6 @@
             input.onchange = function(event) {
                 const file = event.target.files[0];
                 if (!file) return;
-
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
@@ -2036,22 +1840,21 @@
             input.click();
             closeSettingsDropdown();
         } 
-
+        
         // 合并导入数据
         function importWithMerge() {
             performImport('merge');
         }
-
+        
         // 替换导入数据
         function importWithReplace() {
             performImport('replace');
         }
-
+        
         // 执行导入操作
         function performImport(mode) {
             const importedData = window.importedData;
             closeModal('importConfirmModal');
-
             if (mode === 'replace') {
                 const clearGroups = db.transaction(['groups'], 'readwrite').objectStore('groups').clear();
                 clearGroups.onsuccess = function() {
@@ -2070,47 +1873,37 @@
                 insertImportedData(importedData, mode);
             }
         }
-
+        
         // 插入导入的数据
         function insertImportedData(data, mode) {
             try {
                 const groupMap = new Map();
-                
                 const getGroupsRequest = db.transaction(['groups'], 'readonly').objectStore('groups').getAll();
-                
                 getGroupsRequest.onsuccess = function() {
                     const existingGroups = getGroupsRequest.result;
                     const existingGroupNames = new Set(existingGroups.map(g => g.name));
-                    
                     const groupsTransaction = db.transaction(['groups'], 'readwrite');
                     const groupsStore = groupsTransaction.objectStore('groups');
-                    
                     let groupInsertCount = 0;
                     const totalGroups = data.groups.length;
-                    
                     if (totalGroups === 0) {
                         processNotes();
                         return;
                     }
-                    
                     data.groups.forEach((group, index) => {
                         let groupName = group.name;
-                        
                         if (mode === 'merge' && existingGroupNames.has(groupName)) {
                             groupName = `${groupName}(导入)`;
                         }
-                        
                         const newGroup = {
                             name: groupName,
                             createdAt: group.createdAt || new Date(),
                             updatedAt: group.updatedAt || new Date()
                         };
-                        
                         const addRequest = groupsStore.add(newGroup);
                         addRequest.onsuccess = function(e) {
                             groupMap.set(group.id, e.target.result);
                             groupInsertCount++;
-                            
                             if (groupInsertCount === totalGroups) {
                                 processNotes();
                             }
@@ -2119,20 +1912,15 @@
                             showNotification('分组导入失败', 'error');
                         };
                     });
-                    
                     function processNotes() {
                         const getNotesRequest = db.transaction(['notes'], 'readonly').objectStore('notes').getAll();
-                        
                         getNotesRequest.onsuccess = function() {
                             const existingNotes = getNotesRequest.result;
                             const existingNoteTitles = new Set(existingNotes.map(n => n.title));
-                            
                             const notesTransaction = db.transaction(['notes'], 'readwrite');
                             const notesStore = notesTransaction.objectStore('notes');
-                            
                             let noteInsertCount = 0;
                             const totalNotes = data.notes.length;
-                            
                             if (totalNotes === 0) {
                                 notesTransaction.oncomplete = function() {
                                     loadNotebookTree();
@@ -2140,23 +1928,19 @@
                                 };
                                 return;
                             }
-                            
                             data.notes.forEach(note => {
                                 let noteTitle = note.title;
                                 let noteGroupId = note.groupId ? groupMap.get(note.groupId) : null;
-                                
                                 if (mode === 'merge' && existingNoteTitles.has(noteTitle)) {
                                     noteTitle = `${noteTitle}(导入)`;
                                 }
-                                
                                 const newNote = {
                                     title: noteTitle,
                                     groupId: noteGroupId,
-                                    content: note.content || JSON.stringify({ops: []}),
+                                    content: note.content || '<p><br></p>',
                                     createdAt: note.createdAt || new Date(),
                                     updatedAt: note.updatedAt || new Date()
                                 };
-                                
                                 const addNoteRequest = notesStore.add(newNote);
                                 addNoteRequest.onsuccess = function() {
                                     noteInsertCount++;
@@ -2172,30 +1956,27 @@
                                 };
                             });
                         };
-                        
                         getNotesRequest.onerror = function() {
                             showNotification('获取现有笔记失败', 'error');
                         };
                     }
                 };
-                
                 getGroupsRequest.onerror = function() {
                     showNotification('数据恢复失败', 'error');
                 };
-                
             } catch (error) {
                 console.error('数据导入错误:', error);
                 showNotification('数据恢复失败', 'error');
             }
         }
-		
-		function getCharWidth(c){
-			  const canvas = document.createElement('canvas');
-			  const context = canvas.getContext('2d');
-			  const metrics = context.measureText(c);
-			  return metrics.width;
-		}
-
+        
+        function getCharWidth(c){
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+              const metrics = context.measureText(c);
+              return metrics.width;
+        }
+        
         // 页面卸载前检查未保存的更改
         window.addEventListener('beforeunload', function(e) {
             if (hasUnsavedChanges) {
