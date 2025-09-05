@@ -67,7 +67,7 @@ async function sendData(data){
 			};
 
 			// 2. 发送请求并等待响应
-			const response = await fetch("/netbook/save", requestOptions);
+			const response = await fetch("https://netbook.watano.top/netbook/save", requestOptions);
 
 			// 3. 检查响应状态
 			if (!response.ok) {
@@ -113,7 +113,7 @@ async function getData(){
 			};
 
 			// 2. 发送请求并等待响应
-			const response = await fetch("/netbook/get", requestOptions);
+			const response = await fetch("https://netbook.watano.top/netbook/get", requestOptions);
 
 			// 3. 检查响应状态
 			if (!response.ok) {
