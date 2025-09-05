@@ -1989,7 +1989,6 @@
 
                 notesRequest.onsuccess = function() {
                     exportObj.notes = notesRequest.result;
-					if(typeof sendData==="function") sendData(exportObj);
                     const dataStr = JSON.stringify(exportObj, null, 2);
                     const dataBlob = new Blob([dataStr], { type: 'application/json' });
                     const url = URL.createObjectURL(dataBlob);
