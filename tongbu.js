@@ -1,7 +1,9 @@
 
 let settingMenu=document.getElementById("setting-menu");
-
-settingMenu.innerHTML=settingMenu.innerHTML+'<a href="#" onclick="tongbuData()">📤 同步数据</a>';
+settingMenu.innerHTML=settingMenu.innerHTML+'<hr />'+
+					'<a href="#" onclick="backupNowDate()">💾 备份节点</a>'+
+					'<a href="#" onclick="tongbuData()">📤 恢复节点</a>';
+					
 var userid=localStorage.getItem("userid");
 async function tongbuData(){
 	let data=await getData();
@@ -9,6 +11,45 @@ async function tongbuData(){
 	console.log(data)
 	createRestoreDialog(data);
 }
+
+ // 备份数据
+function backupNowDate() {
+	const exportObj = {
+		groups: [],
+		notes: [],
+		exportDate: new Date().toISOString()
+	};
+
+	const groupsTransaction = db.transaction(['groups'], 'readonly');
+	const groupsStore = groupsTransaction.objectStore('groups');
+	const groupsRequest = groupsStore.getAll();
+
+	groupsRequest.onsuccess = function() {
+		exportObj.groups = groupsRequest.result;
+		
+		const notesTransaction = db.transaction(['notes'], 'readonly');
+		const notesStore = notesTransaction.objectStore('notes');
+		const notesRequest = notesStore.getAll();
+
+		notesRequest.onsuccess = function() {
+			exportObj.notes = notesRequest.result;
+			sendData(exportObj);
+		};
+		
+		notesRequest.onerror = function() {
+			showNotification('数据备份失败', 'error');
+		};
+	};
+	
+	groupsRequest.onerror = function() {
+		showNotification('数据备份失败', 'error');
+	};
+	
+	closeSettingsDropdown();
+}
+
+
+
 async function sendData(data){
 	 try {
 			if(!userid){
