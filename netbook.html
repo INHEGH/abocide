@@ -829,7 +829,8 @@
                 config: {
                     placeholder: '开始编写您的记事本...',
                     onChange(editor) {
-                        hasUnsavedChanges = true;
+						if(hasUnsavedChanges===-1)hasUnsavedChanges=false;
+                        else hasUnsavedChanges = true;
                         updateSaveButton();
                     }
                 }
@@ -955,6 +956,7 @@
             }
             const sourceTextarea = document.getElementById('source-textarea');
             const htmlContent = sourceTextarea.value;
+			hasUnsavedChanges=-1;
             editor.setHtml(htmlContent);
             saveCurrentNote();
             toggleSourceMode(); // 切换回编辑模式
@@ -1489,8 +1491,8 @@
                 if (currentNote && currentNote.id === noteId) {
                     currentNote = null;
                     document.getElementById('currentNoteTitle').textContent = '请选择或创建记事本';
+					hasUnsavedChanges=-1;
                     editor.setHtml('<p><br></p>');
-                    hasUnsavedChanges = false;
                     localStorage.removeItem('lastActiveNoteId');
                 }
                 loadNotebookTree();
@@ -1521,8 +1523,8 @@
                 if (currentNote) {
                     document.getElementById('currentNoteTitle').textContent = currentNote.title;
                     const content = currentNote.content || '<p><br></p>';
+					hasUnsavedChanges=-1;
                     editor.setHtml(content);
-                    hasUnsavedChanges = false;
                     updateSaveButton();
                     if (isEditing) {
                         toggleEditMode();
