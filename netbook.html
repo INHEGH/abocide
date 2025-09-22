@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>本地记事本</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-	
+	<script src="https://unpkg.com/@wangeditor/editor@5.1.23/dist/index.js"></script>
+	<link href="https://unpkg.com/@wangeditor/editor@5.1.23/dist/css/style.css" rel="stylesheet">
+    <!--link href="https://cdnjs.cloudflare.com/ajax/libs/wangeditor5/5.1.23/css/style.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wangeditor5/5.1.23/index.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/wangeditor5/5.1.23/css/style.min.css" rel="stylesheet">
-	
-    <!--script src="https://cdn.jsdelivr.net/npm/@wangeditor/editor@5.1.23/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@wangeditor/editor@5.1.23/dist/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/@wangeditor/editor@5.1.23/dist/css/style.css" rel="stylesheet" -->
 	
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -299,7 +299,7 @@
         .nav-hidden .main-container {
             margin-left: 0;
         }
-        .editor-header {
+        .editor-headerx {
             padding: 15px 20px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
@@ -365,8 +365,8 @@
         }
         /* 代码块样式 */
         .w-e-text-container [data-slate-editor] pre code {
-            background-color: #23241f;
-            color: #f8f8f2;
+			background-color: var(--w-e-textarea-slight-bg-color);
+			border: 1px solid var(--w-e-textarea-slight-border-color);
             overflow: visible;
             border-radius: 3px;
             padding: 10px;
@@ -376,6 +376,7 @@
         }
         .dark-mode .w-e-text-container [data-slate-editor] pre code {
             background-color: #1e1e1e;
+			color: #f8f8f2;
         }
         /* 模态框 */
         .modal {
@@ -576,10 +577,92 @@
         .source-editor-toolbar button:hover {
             background: var(--hover-bg);
         }
+        /* 工具栏按钮 */
+        .toolbar-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--nav-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 14px;
+        }
+        .toolbar-btn:hover {
+            background: var(--hover-bg);
+        }
+		.source-editor-toolbar {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--header-bg);
+            display: flex;
+            gap: 10px;
+        }
+        .source-editor-toolbar button {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: var(--nav-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .toolbar-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
 		code{
 			text-shadow: none!important;
 			 font-family: monospace !important;
 		}
+		.w-e-bar-item-menus-container .w-e-bar-item{
+			width:300px;
+		}
+		iframe{
+			height: 60px;
+			width:100%;
+			display:none;
+		}
+		.view-mode iframe{
+			position: fixed;
+			z-index: 99;
+			width: calc(100vw - var(--nav-width));
+			height: calc(100vh - var(--header-height));
+			left: var(--nav-width);
+			top: var(--header-height);
+			display:unset;
+		}
+		#editToggleBtn{
+			margin: 5px;
+			border: 1px;
+			background-color: #f0f8ff00;
+        }
+		
+		.editor-header {
+			padding: 10px;
+			position: fixed;
+			justify-content: space-between;
+			align-items: center;
+			background-color: #f5f5f500;
+			top: calc(var(--header-height) - 8px);    
+			right: 50px;
+			z-index: 9;
+		}
+
+		.editor-title{
+			padding: 5px;
+			border: 0px solid #11223366;
+			background: #ffffff61;
+			position: fixed;
+			font-weight: normal;
+			font-size: medium;
+			left: calc(var(--nav-width) + 5px);
+			top: calc(var(--header-height) - 40px);
+		}
+		.editor-title span{
+			font-weight: 600;
+		}
+		
+		
     </style>
 </head>
 <body>
@@ -601,6 +684,22 @@
                 </div>
             </div>
         </div>
+				<lable class="editor-title">当前: <span  id="currentNoteTitle">请选择或创建记事本</span><button class="action-btn" onclick="toggleEditMode()" id="editToggleBtn">📝</button></lable>
+				<div class="editor-header">
+					<!-- 导出下拉菜单 -->
+						<div class="export-dropdown" id="exportDropdown">
+							<button class="export-btn" onclick="toggleExportDropdown()">
+								<span>📤 导出</span>
+							</button>
+							<div class="export-dropdown-content">
+								<a href="#" onclick="exportToPDF()">📄 PDF</a>
+								<a href="#" onclick="exportToHTML()">🌐 HTML</a>
+								<a href="#" onclick="exportToImage()">🖼️ 图片</a>
+							</div>
+						</div>
+				</div>
+				
+						
     </div>
     <!-- 主容器 -->
     <div class="container" id="mainContainer">
@@ -621,36 +720,20 @@
         <button class="nav-toggle-float" onclick="toggleNav()">☰</button>
         <!-- 主体内容 -->
         <div class="main-container">
-            <div class="editor-header">
-                <div class="editor-title" id="currentNoteTitle">请选择或创建记事本</div>
-                <div class="editor-actions">
-                    <button class="action-btn" onclick="toggleEditMode()" id="editToggleBtn">📝 编辑模式</button>
-                    <button class="action-btn" onclick="toggleSourceMode()" id="sourceToggleBtn">💻 源码模式</button>
-                    <button class="action-btn" onclick="saveCurrentNote()">💾 保存</button>
-                    <!-- 导出下拉菜单 -->
-                    <div class="export-dropdown" id="exportDropdown">
-                        <button class="export-btn" onclick="toggleExportDropdown()">
-                            <span>📤 导出</span>
-                        </button>
-                        <div class="export-dropdown-content">
-                            <a href="#" onclick="exportToPDF()">📄 PDF</a>
-                            <a href="#" onclick="exportToHTML()">🌐 HTML</a>
-                            <a href="#" onclick="exportToImage()">🖼️ 图片</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="editor-container">
-                <div id="editor-toolbar"></div>
-                <div id="editor"></div>
-                <div id="source-editor">
-                    <div class="source-editor-toolbar">
-                        <button onclick="saveSourceCode()">💾 保存源码</button>
-                        <button onclick="cancelSourceMode()">❌ 取消</button>
-                    </div>
-                    <textarea id="source-textarea"></textarea>
-                </div>
-            </div>
+			<div class='mainedit'>
+				<div class="editor-container">
+					<div id="editor-toolbar"></div>
+					<div id="editor"></div>
+					<div id="source-editor">
+						<div class="source-editor-toolbar">
+							<button onclick="saveSourceCode()">💾 保存源码</button>
+							<button onclick="cancelSourceMode()">❌ 取消</button>
+						</div>
+						<textarea id="source-textarea"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class='mainiframe'></div>
         </div>
     </div>
     <!-- 添加分组模态框 -->
@@ -703,15 +786,131 @@
     </div>
     <!-- 提示信息 -->
     <div class="notification" id="notification"></div>
-    <script>
+	<script>
+	
+	
         // 全局变量
+		let dbName=localStorage.getItem("userid")||'NotebookDB';
         let db;
+		
+		
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                // 防止重复加载
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error(`加载失败: ${src}`));
+                document.head.appendChild(script);
+            });
+        }
+		
+		async function listIndexedDBDatabases() {
+			if (!window.indexedDB) {
+				console.log("当前浏览器不支持 IndexedDB");
+				return [];
+			}
+
+			// 检查是否支持 indexedDB.databases()
+			if (typeof indexedDB.databases === 'function') {
+				try {
+					const databases = await indexedDB.databases();
+					console.log(`当前 origin 下共有 ${databases.length} 个 IndexedDB 数据库：`);
+					databases.forEach((db, index) => {
+						console.log(`${index + 1}. 名称: "${db.name}", 版本: ${db.version}`);
+					});
+					return databases.map(db => db.name);
+				} catch (error) {
+					console.error("获取数据库列表失败:", error);
+					return [];
+				}
+			} else {
+				console.warn("当前浏览器不支持 indexedDB.databases() 方法，无法列出数据库。");
+				// 可选：提示用户手动输入数据库名或使用其他方式
+				return [];
+			}
+		}
+		
+		function getUsers(){
+			// 调用函数
+			listIndexedDBDatabases().then(names => {
+				console.log(names);
+			});
+		}
+		function setUser(userid,reload){
+			// 调用函数
+			if(!userid){
+				localStorage.removeItem("userid");
+			}else{
+				localStorage.setItem("userid",userid);
+			}
+			if(reload){
+				document.location.reload();
+			}
+		}
+		function clearUser(reload){
+			setUser(null,reload);
+		}
+		// 初始化IndexedDB
+        function initDB() {
+            const request = indexedDB.open(dbName, 3);
+            request.onerror = function(event) {
+                console.error('数据库打开失败:', event.target.error);
+                showNotification('数据库初始化失败', 'error');
+            };
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadNotebookTree();
+                // 如果有最后保存的笔记ID，自动加载
+                if (lastActiveNoteId) {
+                    setTimeout(() => {
+                        openNote(lastActiveNoteId);
+                    }, 100);
+                }
+            };
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains('groups')) {
+                    const groupStore = db.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
+                    groupStore.createIndex('name', 'name', { unique: false });
+                }
+                if (!db.objectStoreNames.contains('notes')) {
+                    const noteStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                    noteStore.createIndex('groupId', 'groupId', { unique: false });
+                    noteStore.createIndex('title', 'title', { unique: false });
+                }
+            };
+        }
+		
+		function getNotesStore(readonly){
+		    const  transaction = db.transaction(['notes'], readonly?'readonly':'readwrite');
+            return transaction.objectStore('notes');
+		}
+		
+		function getGroupStore(readonly){
+		    const  transaction = db.transaction(['groups'], readonly?'readonly':'readwrite');
+            return transaction.objectStore('groups');
+		}
+		
+        initDB();
+		
+		
+		if(localStorage.getItem("userid")){
+			 loadScript('tongbu.js');
+		}
+		
+	</script>
+    <script>
+		let iframes={};
         let editor;
         let currentNote = null;
         let isEditing = false;
         let isNavCollapsed = false;
         let isDarkMode = false;
-        let hasUnsavedChanges = false;
         let pendingNavigation = null;
         let lastActiveNoteId = null;
         let deletePending = null;
@@ -721,10 +920,10 @@
         let clickCount = 0;
         let spaceCharWidth=-1;
         let isSourceMode = false;
+        let initialContent = ''; // 用于跟踪初始内容
         
         // 初始化应用
         document.addEventListener('DOMContentLoaded', function() {
-            initDB();
             initWangEditor();
             updateDateTime();
             setInterval(updateDateTime, 1000);
@@ -765,9 +964,6 @@
                     saveCurrentNote();
                 }
             });
-            if(localStorage.getItem("userid")){
-                 loadScript('tongbu.js');
-            }
         });
         
         // 切换设置下拉菜单
@@ -792,36 +988,51 @@
             document.getElementById('exportDropdown').classList.remove('show');
         }
         
-        // 初始化IndexedDB
-        function initDB() {
-            const request = indexedDB.open('NotebookDB', 3);
-            request.onerror = function(event) {
-                console.error('数据库打开失败:', event.target.error);
-                showNotification('数据库初始化失败', 'error');
-            };
-            request.onsuccess = function(event) {
-                db = event.target.result;
-                loadNotebookTree();
-                // 如果有最后保存的笔记ID，自动加载
-                if (lastActiveNoteId) {
-                    setTimeout(() => {
-                        openNote(lastActiveNoteId);
-                    }, 100);
-                }
-            };
-            request.onupgradeneeded = function(event) {
-                db = event.target.result;
-                if (!db.objectStoreNames.contains('groups')) {
-                    const groupStore = db.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
-                    groupStore.createIndex('name', 'name', { unique: false });
-                }
-                if (!db.objectStoreNames.contains('notes')) {
-                    const noteStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
-                    noteStore.createIndex('groupId', 'groupId', { unique: false });
-                    noteStore.createIndex('title', 'title', { unique: false });
-                }
-            };
-        }
+
+		
+		    // Extend menu
+    class MyMenu {
+      constructor() {
+        this.title = '源码模式'
+        // this.iconSvg = '<svg >...</svg>'
+        this.tag = 'button'
+      }
+      getValue(editor) {
+        return ' hello '
+      }
+      isActive(editor) {
+        return false // or true
+      }
+      isDisabled(editor) {
+        return false // or true
+      }
+      exec(editor, value) {
+          toggleSourceMode();
+		  // editor.insertText("XXXXXXXXXXX") // value 即 this.getValue(editor) 的返回值
+      }
+    }
+    const myMenuConf = {
+      key: 'myMenu',
+      factory() { 
+        return new MyMenu()
+      }
+    }
+	
+	
+    window.wangEditor.Boot.registerMenu(myMenuConf);
+	window.wangEditor.Boot.registerMenu({
+		  key: 'savebtn',
+		  factory() {
+			return {
+				title:'💾 保存',
+				tag:"button",
+				isActive:function(editor){return true;},
+				isDisabled:function(editor){return false;},
+				getValue:function(editor){return 1;},
+				exec:function(editor, value){ saveCurrentNote(); }
+			}
+		  }
+	});
         
         // 初始化WangEditor编辑器
         function initWangEditor() {
@@ -833,8 +1044,7 @@
                 config: {
                     placeholder: '开始编写您的记事本...',
                     onChange(editor) {
-						if(hasUnsavedChanges===-1)hasUnsavedChanges=false;
-                        else hasUnsavedChanges = true;
+                        // 只有当内容真正发生变化时才标记为有未保存更改
                         updateSaveButton();
                     }
                 }
@@ -847,7 +1057,12 @@
                     excludeKeys: [
                         'group-video',
                         'insertImage'
-                    ]
+                    ],
+                    // 添加自定义按钮
+                     insertKeys: {
+					  index: 999,
+					  keys: ['|','myMenu','savebtn'], // show menu in toolbar
+					}
                 }
             });
             
@@ -918,10 +1133,10 @@
             isEditing = !isEditing;
             const btn = document.getElementById('editToggleBtn');
             if (isEditing) {
-                btn.textContent = '👁️ 查看模式';
+                btn.textContent = '👁️';
                 editor.enable();
             } else {
-                btn.textContent = '📝 编辑模式';
+                btn.textContent = '📝';
                 editor.disable();
             }
             updateViewMode();
@@ -930,14 +1145,13 @@
         // 切换源码模式
         function toggleSourceMode() {
             isSourceMode = !isSourceMode;
-            const btn = document.getElementById('sourceToggleBtn');
             const editorElement = document.getElementById('editor');
             const toolbarElement = document.getElementById('editor-toolbar');
             const sourceEditorElement = document.getElementById('source-editor');
             const sourceTextarea = document.getElementById('source-textarea');
             
             if (isSourceMode) {
-                btn.textContent = '📝 编辑模式';
+                // 进入源码模式
                 editorElement.style.display = 'none';
                 toolbarElement.style.display = 'none';
                 sourceEditorElement.style.display = 'flex';
@@ -945,7 +1159,7 @@
                 sourceTextarea.value = editor.getHtml();
                 sourceTextarea.focus();
             } else {
-                btn.textContent = '💻 源码模式';
+                // 退出源码模式
                 editorElement.style.display = 'block';
                 toolbarElement.style.display = 'block';
                 sourceEditorElement.style.display = 'none';
@@ -960,7 +1174,6 @@
             }
             const sourceTextarea = document.getElementById('source-textarea');
             const htmlContent = sourceTextarea.value;
-			hasUnsavedChanges=-1;
             editor.setHtml(htmlContent);
             saveCurrentNote();
             toggleSourceMode(); // 切换回编辑模式
@@ -984,8 +1197,7 @@
         
         // 添加默认分组
         function addDefaultGroup() {
-            const transaction = db.transaction(['groups'], 'readwrite');
-            const store = transaction.objectStore('groups');
+            const store = getGroupStore(false);
             const group = { name: '默认分组', createdAt: new Date() };
             const request = store.add(group);
             request.onsuccess = function() {
@@ -1015,8 +1227,7 @@
                 showNotification('请输入分组名称', 'error');
                 return;
             }
-            const transaction = db.transaction(['groups'], 'readwrite');
-            const store = transaction.objectStore('groups');
+            const store = getGroupStore(false);
             const group = { name: groupName, createdAt: new Date() };
             const request = store.add(group);
             request.onsuccess = function() {
@@ -1031,8 +1242,7 @@
         
         // 在分组中添加默认笔记本
         function addDefaultNoteToGroup(groupId) {
-            const transaction = db.transaction(['notes'], 'readwrite');
-            const store = transaction.objectStore('notes');
+            const store = getNotesStore(false);
             const note = {
                 title: '默认笔记本',
                 groupId: groupId,
@@ -1068,15 +1278,13 @@
         function loadNotebookTree() {
             const navContent = document.getElementById('navContent');
             navContent.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">加载中...</div>';
-            const groupsTransaction = db.transaction(['groups'], 'readonly');
-            const groupsStore = groupsTransaction.objectStore('groups');
+            const groupsStore = getGroupStore(true);;
             const groupsRequest = groupsStore.getAll();
             groupsRequest.onsuccess = function() {
                 let groups = groupsRequest.result;
                 // 按名称排序
                 groups.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
-                const notesTransaction = db.transaction(['notes'], 'readonly');
-                const notesStore = notesTransaction.objectStore('notes');
+                const notesStore =  getNotesStore(true);
                 const notesRequest = notesStore.getAll();
                 notesRequest.onsuccess = function() {
                     let notes = notesRequest.result;
@@ -1138,7 +1346,7 @@
                     const isToggleIcon = e.target.classList.contains('group-toggle');
                     if (isToggleIcon)toggleGroup(group.id);
                 };
-                groupDiv.ondblclick = function(e) {
+                groupDiv.ondblclick = function(e) {e.stopPropagation();
                     const isToggleIcon = e.target.classList.contains('group-toggle');
                     if (!isToggleIcon)startRename(groupDiv, 'group', groupDiv.dataset.groupName, group.id);
                 };
@@ -1186,6 +1394,7 @@
             }
         }
         
+		let noteDblFlag=false;
         // 创建记事本节点
         function createNoteNode(note) {
             const noteNode = document.createElement('div');
@@ -1196,12 +1405,19 @@
             noteNode.draggable = true;
             // 添加拖拽事件
             noteNode.addEventListener('dragstart', handleDragStart);
-            noteNode.onclick = () => handleNoteClick(note.id);
+            noteNode.onclick =function(){
+				if(event.target.nodeName=="INPUT")return ;
+				noteDblFlag=false;
+				setTimeout(function(){
+					if(!noteDblFlag)handleNoteClick(note.id);
+				},50);
+			}
             if (currentNote && currentNote.id === note.id) {
                 noteNode.classList.add('active');
             }
             // 双击重命名
             noteNode.ondblclick = function(e) {
+				noteDblFlag=true;
                 e.stopPropagation();
                 startRename(noteNode, 'note', note.title, note.id);
             };
@@ -1224,7 +1440,7 @@
         // 开始重命名
         function startRename(node, type, currentName, id) {
             if (renamingNode) {
-                finishRename();
+                finishRename(1);
             }
             renamingNode = { node, type, id, originalName: currentName };
             const input = document.createElement('input');
@@ -1235,9 +1451,9 @@
             input.dataset.renameId = id;
             input.onkeydown = function(e) {
                 if (e.key === 'Enter') {
-                    finishRename();
+                    finishRename(2);
                 } else if (e.key === 'Escape') {
-                    cancelRename();
+                    cancelRename(2);
                 }
             };
             input.onblur = finishRename;
@@ -1248,16 +1464,16 @@
         }
         
         // 完成重命名
-        function finishRename() {
+        function finishRename(t) {
             if (!renamingNode) return;
             const input = renamingNode.node.querySelector('.rename-input');
             if (!input) {
-                cancelRename();
+                cancelRename(1);
                 return;
             }
             const newName = input.value.trim();
             if (!newName || newName === renamingNode.originalName) {
-                cancelRename();
+                cancelRename(3);
                 return;
             }
             if (renamingNode.type === 'group') {
@@ -1269,7 +1485,7 @@
         }
         
         // 取消重命名
-        function cancelRename() {
+        function cancelRename(t) {
             if (!renamingNode) return;
             if (renamingNode.type === 'group') {
                 if (renamingNode.originalName === '未分组') {
@@ -1323,8 +1539,7 @@
         
         // 更新分组名称
         function updateGroupName(groupId, newName) {
-            const transaction = db.transaction(['groups'], 'readwrite');
-            const store = transaction.objectStore('groups');
+            const store = getGroupStore(false);
             const request = store.get(groupId);
             request.onsuccess = function() {
                 const group = request.result;
@@ -1348,8 +1563,7 @@
         
         // 更新记事本名称
         function updateNoteName(noteId, newName) {
-            const transaction = db.transaction(['notes'], 'readwrite');
-            const store = transaction.objectStore('notes');
+            const store =  getNotesStore(false);
             const request = store.get(noteId);
             request.onsuccess = function() {
                 const note = request.result;
@@ -1406,8 +1620,7 @@
         
         // 移动记事本到分组
         function moveNoteToGroup(noteId, groupId) {
-            const transaction = db.transaction(['notes'], 'readwrite');
-            const store = transaction.objectStore('notes');
+            const store =  getNotesStore(false);
             const request = store.get(noteId);
             request.onsuccess = function() {
                 const note = request.result;
@@ -1457,8 +1670,7 @@
         
         // 删除分组
         function deleteGroup(groupId) {
-            const transaction = db.transaction(['notes'], 'readonly');
-            const store = transaction.objectStore('notes');
+            const store =  getNotesStore(true);
             const index = store.index('groupId');
             const request = index.getAll(groupId);
             request.onsuccess = function() {
@@ -1467,8 +1679,7 @@
                     showNotification('分组下有记事本，不能直接删除', 'error');
                     return;
                 }
-                const deleteTransaction = db.transaction(['groups'], 'readwrite');
-                const deleteStore = deleteTransaction.objectStore('groups');
+                const deleteStore = getGroupStore(false);
                 const deleteRequest = deleteStore.delete(groupId);
                 deleteRequest.onsuccess = function() {
                     // 删除分组状态记录
@@ -1488,14 +1699,12 @@
         
         // 删除记事本
         function deleteNote(noteId) {
-            const transaction = db.transaction(['notes'], 'readwrite');
-            const store = transaction.objectStore('notes');
+            const store =  getNotesStore(false);
             const request = store.delete(noteId);
             request.onsuccess = function() {
                 if (currentNote && currentNote.id === noteId) {
                     currentNote = null;
                     document.getElementById('currentNoteTitle').textContent = '请选择或创建记事本';
-					hasUnsavedChanges=-1;
                     editor.setHtml('<p><br></p>');
                     localStorage.removeItem('lastActiveNoteId');
                 }
@@ -1509,7 +1718,7 @@
         
         // 处理记事本点击
         function handleNoteClick(noteId) {
-            if (hasUnsavedChanges && currentNote && currentNote.id !== noteId) {
+            if (initialContent != editor.getHtml() && currentNote && currentNote.id !== noteId) {
                 pendingNavigation = noteId;
                 document.getElementById('confirmSaveModal').style.display = 'block';
             } else {
@@ -1517,18 +1726,55 @@
             }
         }
         
+		function setHtml(html,cnt){
+			try{
+				editor.setHtml(html);
+				return true;
+			}catch(e){ 
+				console.error(e);
+				console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx");
+				return false; 
+			}
+		}
+		
         // 打开记事本
         function openNote(noteId) {
-            const transaction = db.transaction(['notes'], 'readonly');
-            const store = transaction.objectStore('notes');
+            const store =  getNotesStore(true);
             const request = store.get(noteId);
-            request.onsuccess = function() {
+            request.onsuccess = function() { 
                 currentNote = request.result;
                 if (currentNote) {
-                    document.getElementById('currentNoteTitle').textContent = currentNote.title;
+					showWin(currentNote);
+                    document.getElementById('currentNoteTitle').textContent = currentNote.title+"-[加载中。。。]";
                     const content = currentNote.content || '<p><br></p>';
-					hasUnsavedChanges=-1;
-                    editor.setHtml(content);
+					let loadHtml=function(htmlContent){
+						let loadSuccess=setHtml(htmlContent);
+						if(loadSuccess){
+							//initialContent = editor.getHtml();
+							// 保存初始内容用于比较
+							setTimeout(function(){initialContent = editor.getHtml();},100);
+							return true;
+						}
+						return false;
+					}
+					let loadFlag=loadHtml(content);
+
+					if(!loadFlag){
+						let sethtmltiger=setInterval(function ff() {
+							loadFlag=loadHtml(content);
+							if(loadFlag)clearInterval(sethtmltiger);
+						},500);
+					}
+						/*	
+							if(!loadSuccess){
+							
+							   loadSuccess=setHtml(content);
+							}
+							if(!loadSuccess){
+							   loadSuccess=setHtml(content);
+							}
+						*/
+					document.getElementById('currentNoteTitle').textContent = currentNote.title;
                     updateSaveButton();
                     if (isEditing) {
                         toggleEditMode();
@@ -1562,11 +1808,11 @@
             const content = editor.getHtml();
             currentNote.content = content;
             currentNote.updatedAt = new Date();
-            const transaction = db.transaction(['notes'], 'readwrite');
-            const store = transaction.objectStore('notes');
+            const store = getNotesStore(false);
             const request = store.put(currentNote);
             request.onsuccess = function() {
-                hasUnsavedChanges = false;
+                // 更新初始内容
+                initialContent = content;
                 updateSaveButton();
                 showNotification('保存成功！');
             };
@@ -1577,7 +1823,6 @@
         
         // 不保存更改
         function discardChanges() {
-            hasUnsavedChanges = false;
             closeModal('confirmSaveModal');
             if (pendingNavigation) {
                 openNote(pendingNavigation);
@@ -1599,20 +1844,6 @@
             }, 300);
         }
         
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                // 防止重复加载
-                if (document.querySelector(`script[src="${src}"]`)) {
-                    resolve();
-                    return;
-                }
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = () => resolve();
-                script.onerror = () => reject(new Error(`加载失败: ${src}`));
-                document.head.appendChild(script);
-            });
-        }
         
         // 导出为PDF
       async  function exportToPDF() {
@@ -1793,13 +2024,11 @@
                 notes: [],
                 exportDate: new Date().toISOString()
             };
-            const groupsTransaction = db.transaction(['groups'], 'readonly');
-            const groupsStore = groupsTransaction.objectStore('groups');
+            const groupsStore = getGroupStore(true);;
             const groupsRequest = groupsStore.getAll();
             groupsRequest.onsuccess = function() {
                 exportObj.groups = groupsRequest.result;
-                const notesTransaction = db.transaction(['notes'], 'readonly');
-                const notesStore = notesTransaction.objectStore('notes');
+                const notesStore =  getNotesStore(true);
                 const notesRequest = notesStore.getAll();
                 notesRequest.onsuccess = function() {
                     exportObj.notes = notesRequest.result;
@@ -1862,9 +2091,9 @@
             const importedData = window.importedData;
             closeModal('importConfirmModal');
             if (mode === 'replace') {
-                const clearGroups = db.transaction(['groups'], 'readwrite').objectStore('groups').clear();
+                const clearGroups = getGroupStore(false).clear();
                 clearGroups.onsuccess = function() {
-                    const clearNotes = db.transaction(['notes'], 'readwrite').objectStore('notes').clear();
+                    const clearNotes =  getNotesStore(false).clear();
                     clearNotes.onsuccess = function() {
                         insertImportedData(importedData, mode);
                     };
@@ -1884,12 +2113,11 @@
         function insertImportedData(data, mode) {
             try {
                 const groupMap = new Map();
-                const getGroupsRequest = db.transaction(['groups'], 'readonly').objectStore('groups').getAll();
+                const getGroupsRequest = getGroupStore(true).getAll();
                 getGroupsRequest.onsuccess = function() {
                     const existingGroups = getGroupsRequest.result;
                     const existingGroupNames = new Set(existingGroups.map(g => g.name));
-                    const groupsTransaction = db.transaction(['groups'], 'readwrite');
-                    const groupsStore = groupsTransaction.objectStore('groups');
+                    const groupsStore = getGroupStore(false);
                     let groupInsertCount = 0;
                     const totalGroups = data.groups.length;
                     if (totalGroups === 0) {
@@ -1919,12 +2147,11 @@
                         };
                     });
                     function processNotes() {
-                        const getNotesRequest = db.transaction(['notes'], 'readonly').objectStore('notes').getAll();
+                        const getNotesRequest =  getNotesStore(true).getAll();
                         getNotesRequest.onsuccess = function() {
                             const existingNotes = getNotesRequest.result;
                             const existingNoteTitles = new Set(existingNotes.map(n => n.title));
-                            const notesTransaction = db.transaction(['notes'], 'readwrite');
-                            const notesStore = notesTransaction.objectStore('notes');
+                            const notesStore =  getNotesStore(false);
                             let noteInsertCount = 0;
                             const totalNotes = data.notes.length;
                             if (totalNotes === 0) {
@@ -1985,12 +2212,44 @@
         
         // 页面卸载前检查未保存的更改
         window.addEventListener('beforeunload', function(e) {
-            if (hasUnsavedChanges) {
+            if (initialContent != editor.getHtml()) {
                 e.preventDefault();
                 e.returnValue = '您有未保存的更改，确定要离开吗？';
                 return e.returnValue;
             }
         });
+		
+		
+		function showWin(node){
+			for(let k in iframes)iframes[k].style.display='none';
+			let content=node.content;
+			const regex = /<[^>]+>/g;
+			const text = content.replace(regex, '').trim();
+			console.log(text);
+			if(text && text.startsWith("{")){
+				let iframeJson=null;
+				try{
+					iframeJson=JSON.parse(text);
+				}catch(e){
+					try{eval("iframeJson="+text);}catch(e2){}
+				}
+				if(iframeJson && iframeJson.src){
+					let ifm=iframes[node.id];
+					if(!ifm){
+						ifm=document.createElement("IFRAME");
+						ifm.src=iframeJson.src;
+						document.querySelector(".mainiframe").appendChild(ifm);
+						iframes[node.id]=ifm;
+					}else{
+						ifm.style.display='';
+					}
+					
+				}
+			}
+		}
+		
+		
+
     </script>
 </body>
 </html>
