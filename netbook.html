@@ -680,7 +680,7 @@
                 <div id="setting-menu" class="dropdown-content">
                     <a href="#" onclick="toggleTheme()">🌙 夜间模式</a>
                     <a href="#" onclick="backupData()">💾 备份数据</a>
-                    <a href="#" onclick="restoreData()">📤 恢复数据</a>
+                    <a href="#" onclick="restoreLocalData()">📤 恢复数据</a>
                 </div>
             </div>
         </div>
@@ -2053,7 +2053,7 @@
         }
         
         // 恢复数据
-        function restoreData() {
+        function restoreLocalData() {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = '.json';
