@@ -2155,7 +2155,7 @@
                             let noteInsertCount = 0;
                             const totalNotes = data.notes.length;
                             if (totalNotes === 0) {
-                                notesTransaction.oncomplete = function() {
+                                getNotesRequest.transaction.oncomplete = function() {
                                     loadNotebookTree();
                                     showNotification('数据恢复成功');
                                 };
@@ -2178,7 +2178,7 @@
                                 addNoteRequest.onsuccess = function() {
                                     noteInsertCount++;
                                     if (noteInsertCount === totalNotes) {
-                                        notesTransaction.oncomplete = function() {
+                                        getNotesRequest.transaction.oncomplete = function() {
                                             loadNotebookTree();
                                             showNotification('数据恢复成功');
                                         };
