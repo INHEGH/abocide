@@ -864,7 +864,11 @@
             };
             request.onsuccess = function(event) {
                 db = event.target.result;
-                loadNotebookTree();
+                try{loadNotebookTree();}catch(e){
+					setTimeout(() => {
+                        loadNotebookTree();
+                    }, 200);
+				}
                 // 如果有最后保存的笔记ID，自动加载
                 if (lastActiveNoteId) {
                     setTimeout(() => {
