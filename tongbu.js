@@ -78,11 +78,12 @@ async function sendData(data){
 			// 4. 解析服务器返回的 JSON 数据
 			// 即使请求成功，服务器也可能返回错误信息，最好在这里也处理一下
 			let result;
-			const contentType = response.headers.get("content-type");
+			const contentType = response.headers["content-type"]|| response.headers.get("content-type");
 			if (contentType && contentType.indexOf("application/json") !== -1) {
 				 result = await response.json(); // 解析 JSON
 			} else {
 				 result = await response.text(); // 或者获取纯文本
+				
 				 console.warn('Response was not JSON:', result);
 			}
 
@@ -124,7 +125,7 @@ async function getData(){
 			// 4. 解析服务器返回的 JSON 数据
 			// 即使请求成功，服务器也可能返回错误信息，最好在这里也处理一下
 			let result;
-			const contentType = response.headers.get("content-type");
+			const contentType = response.headers["content-type"]|| response.headers.get("content-type");
 			if (contentType && contentType.indexOf("application/json") !== -1) {
 				 result = await response.json(); // 解析 JSON
 			} else {
