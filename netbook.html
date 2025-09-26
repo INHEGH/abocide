@@ -363,6 +363,15 @@
             overflow: auto;
             padding: 12px;
         }
+		.w-e-scroll pre {
+            max-height: 500px;
+            overflow: auto;
+        }
+		
+		.w-e-scroll div {
+           max-height: 83vh;
+        }
+		
         /* 代码块样式 */
         .w-e-text-container [data-slate-editor] pre code {
 			background-color: var(--w-e-textarea-slight-bg-color);
@@ -643,8 +652,8 @@
 			justify-content: space-between;
 			align-items: center;
 			background-color: #f5f5f500;
-			top: calc(var(--header-height) - 8px);    
-			right: 50px;
+			top: calc(var(--header-height) - 8px); 
+			right: 0px;
 			z-index: 9;
 		}
 
@@ -966,7 +975,10 @@
                 if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     saveCurrentNote();
-                }
+                }else if (e.ctrlKey && e.keyCode === 13) {
+                    e.preventDefault();
+                    runJs(); 
+                } 
             });
         });
         
@@ -993,37 +1005,32 @@
         }
         
 
-		
-		    // Extend menu
-    class MyMenu {
-      constructor() {
-        this.title = '源码模式'
-        // this.iconSvg = '<svg >...</svg>'
-        this.tag = 'button'
-      }
-      getValue(editor) {
-        return ' hello '
-      }
-      isActive(editor) {
-        return false // or true
-      }
-      isDisabled(editor) {
-        return false // or true
-      }
-      exec(editor, value) {
-          toggleSourceMode();
-		  // editor.insertText("XXXXXXXXXXX") // value 即 this.getValue(editor) 的返回值
-      }
-    }
-    const myMenuConf = {
-      key: 'myMenu',
-      factory() { 
-        return new MyMenu()
-      }
-    }
-	
-	
-    window.wangEditor.Boot.registerMenu(myMenuConf);
+	window.wangEditor.Boot.registerMenu({
+		  key: 'runjsbtn',
+		  factory() {
+			return {
+				title:'▶RunJs',
+				tag:"button",
+				isActive:function(editor){return true;},
+				isDisabled:function(editor){return false;},
+				getValue:function(editor){return 1;},
+				exec:function(editor, value){ runJs(); }
+			}
+		  }
+	});
+    window.wangEditor.Boot.registerMenu({
+		  key: 'myMenu',
+		  factory() {
+			return {
+				title:'源码模式',
+				tag:"button",
+				isActive:function(editor){return false;},
+				isDisabled:function(editor){return false;},
+				getValue:function(editor){return 1;},
+				exec:function(editor, value){ toggleSourceMode(); }
+			}
+		  }
+	});
 	window.wangEditor.Boot.registerMenu({
 		  key: 'savebtn',
 		  factory() {
@@ -1053,19 +1060,18 @@
                     }
                 }
             });
-            
             const toolbar = createToolbar({
                 editor,
                 selector: '#editor-toolbar',
                 config: {
                     excludeKeys: [
-                        'group-video',
+                      //  'group-video',
                         'insertImage'
                     ],
                     // 添加自定义按钮
                      insertKeys: {
 					  index: 999,
-					  keys: ['|','myMenu','savebtn'], // show menu in toolbar
+					  keys: ['|','runjsbtn','myMenu','savebtn'], // show menu in toolbar
 					}
                 }
             });
@@ -2252,6 +2258,80 @@
 			}
 		}
 		
+		function runJs(){
+			try{
+				let jsStr="";
+				const selection = window.getSelection();
+				if (selection.rangeCount === 0) return ;
+				const range = selection.getRangeAt(0);
+				if (!range.startContainer) return ;
+				let sNode=range.startContainer;
+				let codeNode=null;
+				for(let i=0;i<100;i++){
+					if(sNode.nodeName=="CODE")codeNode=sNode;
+					else sNode=sNode.parentElement;
+				}
+				if(!codeNode) return ;
+				
+				jsStr=getJsText(codeNode.id);
+				
+				if(jsStr)eval(`(async () => {try{ \n ${jsStr} \n }catch(e){\n alert(e.message);\n console.error(e);\n} })()`);
+				else alert("未找到相关的JS代码");
+			}catch(e){
+				alert(e.message);
+				console.error(e);
+			}
+		}
+		
+		
+		function getJsText(codeId){
+			let codes=editor.getElemsByType("code");
+			for(let i=0;i<codes.length;i++){
+				let codeTmp=codes[i];
+				if(codeTmp.id==codeId && codeTmp.language.endsWith("script") &&codeTmp.children.length>0){
+					return codeTmp.children[0].text;
+				}
+			}
+			return null;
+
+		}
+		
+		
+if(document.location.origin=="file://"){
+			// 发送跨域请求
+			fetch=function (url, options = {}) {
+			  return new Promise((resolve, reject) => {
+				const requestId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+				
+				const handleMessage = (event) => {
+				  const data = event.data;
+				  if (data && data.type === 'CROSS_ORIGIN_FETCH_RESPONSE' && 
+					  data.requestId === requestId) {
+					window.removeEventListener('message', handleMessage);
+					if (data.success) {
+					  resolve(data.data);
+					} else {
+					  reject(new Error(data.error));
+					}
+				  }
+				};
+				
+				window.addEventListener('message', handleMessage);
+				
+				window.postMessage({
+				  type: 'CROSS_ORIGIN_FETCH',
+				  requestId: requestId,
+				  url: url,
+				  options: options
+				}, '*'); // 前端始终使用 '*' 
+				
+				setTimeout(() => {
+				  window.removeEventListener('message', handleMessage);
+				  reject(new Error('Request timeout'));
+				}, 10000);
+			  });
+			}
+}
 		
 
     </script>
