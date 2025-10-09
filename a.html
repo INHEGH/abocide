@@ -1,4 +1,421 @@
-<script>
-eval(function(p,a,c,k,e,r){e=function(c){return(c<62?'':e(parseInt(c/62)))+((c=c%62)>35?String.fromCharCode(c+29):c.toString(36))};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];k=[function(e){return r[e]||e}];e=function(){return'([6-8abf-hjlnprt-xzA-GI-LN-RT-Z]|[12]\\w)'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('1j.prototype.format=8(x){1G o={"M+":z.1H()+1,"d+":z.getDate(),"H+":z.getHours(),"m+":z.getMinutes(),"s+":z.getSeconds(),"q+":1I.floor((z.1H()+3)/3),"S":z.getMilliseconds()};a(/(y+)/.1J(x)){x=x.1K(Y.$1,(z.getFullYear()+"").1k(4-Y.$1.Z))}for(1G k in o){a(v Y("("+k+")").1J(x)){x=x.1K(Y.$1,(Y.$1.Z==1)?(o[k]):(("00"+o[k]).1k((""+o[k]).Z)))}}j x};a(g.location.1L=="file://"){N.fetch=8(1l,1m={}){j v 17((l,E)=>{7 10=1j.now().1M()+1I.random().1M(36).1k(2,9);7 18=(p)=>{7 r=p.r;a(r&&r.1N===\'CROSS_ORIGIN_FETCH_RESPONSE\'&&r.10===10){N.1O(\'1n\',18);a(r.success){l(r.r.r)}O{E(v 1o(r.P))}}};N.addEventListener(\'1n\',18);N.postMessage({1N:\'CROSS_ORIGIN_FETCH\',10:10,1l:1l,1m:1m},\'*\');1P(()=>{N.1O(\'1n\',18);E(v 1o(\'Request timeout\'))},10000)})}}8 loadScript(Q){j v 17((l,E)=>{a(g.querySelector(`F[Q="${Q}"]`)){l();j}7 F=g.G(\'F\');F.Q=Q;F.onload=()=>l();F.1p=()=>E(v 1o(`加载失败:${Q}`));g.head.I(F)})}8 showTextareaModal(i,s){7 b=g.G(\'1q\');b.6.position=\'fixed\';b.6.top=\'0\';b.6.left=\'0\';b.6.1r=\'11%\';b.6.1Q=\'11%\';b.6.19=\'1R(0, 0, 0, 0.5)\';b.6.zIndex=\'9999\';b.6.1s=\'1a\';b.6.1S=\'1T\';b.6.alignItems=\'1T\';7 h=g.G(\'1q\');h.6.19=\'#fff\';h.6.1t=\'8px\';h.6.boxShadow=\'0 1u 1b 1R(0,0,0,0.3)\';h.6.1r=\'90%\';h.6.maxWidth=\'100vw\';h.6.maxHeight=\'100vh\';h.6.overflow=\'hidden\';h.6.1s=\'1a\';h.6.flexDirection=\'column\';7 f=g.G(\'f\');f.6.1r=\'11%\';f.6.1Q=\'98vh\';f.6.1c=\'1U\';f.6.outline=\'1U\';f.6.1d=\'1V\';f.6.resize=\'vertical\';f.6.1v=\'1w\';f.6.boxSizing=\'1c-box\';7 A=g.G(\'1q\');A.6.1d=\'1b 1V\';A.6.1s=\'1a\';A.6.1S=\'1a-end\';A.6.gap=\'10px\';7 t=g.G(\'1W\');t.1X=\'关闭\';t.6.1d=\'1Y 1b\';t.6.1c=\'1Z 20 #ccc\';t.6.19=\'#f0f0f0\';t.6.1t=\'1u\';t.6.B=\'21\';t.6.1v=\'1w\';t.22=()=>{g.1x.23(b)};7 n=g.G(\'1W\');n.1X=\'提交\';n.6.1d=\'1Y 1b\';n.6.1c=\'1Z 20 #24\';n.6.19=\'#24\';n.6.color=\'white\';n.6.1t=\'1u\';n.6.B=\'21\';n.6.1v=\'1w\';n.22=()=>{7 R=f.R;a(s&&J s==="8")s(R);g.1x.23(b)};A.I(t);A.I(n);h.I(f);h.I(A);b.I(h);g.1x.I(b);a(i&&J i==="string")f.R=i;O a(i&&J i==="8")i(f);1P(()=>f.focus(),11)}25 8 listIndexedDBDatabases(){a(!N.12){C.13("当前浏览器不支持 26");j[]}a(J 12.T===\'8\'){try{7 T=27 12.T();C.13(`当前1L下共有${T.Z}个26数据库：`);14 D=[];T.forEach((db,28)=>{C.13(`${28+1}.名称:"${db.1y}",版本:${db.version}`);a(db.1y!=1e)D.29(db.1y)});j D}catch(P){C.P("获取数据库列表失败:",P);j[]}}O{C.warn("当前浏览器不支持 12.T() 方法，无法列出数据库。");j[]}}14 w={};14 U;14 1e="_sys_db_name_";8 2a(K,1z,1A){7 L=12.open(K,3);L.1p=8(p){C.P(\'数据库打开失败:\',p.V.P)};L.1B=8(p){w[K]=p.V.D;U=p.V.D;a(J 1z=="8"){1z(U)}};L.onupgradeneeded=8(p){w[K]=p.V.D;U=p.V.D;a(J 1A=="8"){1A(U)}}}8 2b(K){a(K){j w[K]}O{j U}}8 2c(u){a(u==1C||J u=="undefined"||u==0)u=0;O a(!u)u=1;j v 17((l,E)=>{2a(1e,(w)=>{7 1f=w.1g(\'W\',\'readonly\').2d(\'W\');7 2e=1f.openCursor(1C,\'prev\');7 1h=[];2e.1B=(e)=>{7 B=e.V.D;a(u==0){l(B?B.R:1C)}a(B&&(u==-1||1h.Z<u)){1h.29(B.R);B.continue()}O{l(1h)}}},(w)=>{a(!w.objectStoreNames.contains(\'W\')){7 2f=w.createObjectStore(\'W\',{keyPath:\'id\',autoIncrement:2g});2f.createIndex(\'1i\',\'1i\',{unique:2h})}})})}8 setSrc(2i){j v 17((l,E)=>{7 1g=2b(1e).1g([\'W\'],\'readwrite\');7 1f=1g.2d(\'W\');7 2j={1i:2i,createdAt:v 1j()};7 L=1f.add(2j);L.1B=8(){C.13("更新成功");l(2g)};L.1p=8(){C.13("更新失败");l(2h)}})}(25 8(){7 _d=[[1D,1E,99,97,1D],[11,1E,99,117,1F,16,110,X],[83,X,1E,2m,97,2n,16],[2n,16,X,73,X,16,1F],[119,2m,105,X,16],[104,X,1F,1D]].map(2o=>String.fromCharCode(...2o));14 c=27 2c();g.write(c.1i)})();',[],149,'||||||style|const|function||if|overlay||||textarea|document|modal||return||resolve||submitButton||event||data||closeButton|limit|new|_db|fmt||this|buttonContainer|cursor|console|result|reject|script|createElement||appendChild|typeof|dbName|request||window|else|error|src|value||databases|_lastDb|target|sys|116|RegExp|length|requestId|100|indexedDB|log|let||101|Promise|handleMessage|backgroundColor|flex|12px|border|padding|_sys_db_name|store|transaction|results|html|Date|substr|url|options|message|Error|onerror|div|width|display|borderRadius|4px|fontSize|14px|body|name|successCallBack|upgradeCallBack|onsuccess|null|108|111|109|var|getMonth|Math|test|replace|origin|toString|type|removeEventListener|setTimeout|height|rgba|justifyContent|center|none|16px|button|textContent|6px|1px|solid|pointer|onclick|removeChild|4CAF50|async|IndexedDB|await|index|push|initDB|getDb|getSrc|objectStore|cursorRequest|sysStore|true|false|_html|html_src|||114|103|arr'.split('|'),0,{}))
+<script id="__system_script__">
+
+Date.prototype.format = function (fmt) {var o = {"M+": this.getMonth() + 1,"d+": this.getDate(),"H+": this.getHours(),"m+": this.getMinutes(),"s+": this.getSeconds(),"q+": Math.floor((this.getMonth() + 3) / 3),"S": this.getMilliseconds() };if (/(y+)/.test(fmt)) {fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));}for (var k in o) {if (new RegExp("(" + k + ")").test(fmt)) {fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));}}return fmt;};
+
+/**
+ * 执行单个 script 元素
+ * @param {HTMLScriptElement} originalScript
+ */
+function __executeScript(originalScript,type,__callBack) {
+	if(originalScript.id.startsWith("__system_script__"))return ;
+    const newScript = document.createElement('script');
+    // 复制所有属性（src, type, async, defer 等）
+    for (const attr of originalScript.attributes) {
+        newScript.setAttribute(attr.name, attr.value);
+    }
+	if(newScript.src && type=="script") return ;
+	if(!newScript.src && type=="src") return ;
+    // 设置内容（内联脚本）
+    if (originalScript.textContent ) {
+        newScript.textContent = originalScript.textContent;
+    }
+	if(newScript.src && typeof __callBack=="function"){
+		newScript.onload=__callBack;
+	}
+    // 替换原脚本（触发执行）
+    originalScript.parentNode.replaceChild(newScript, originalScript);
+	if(!newScript.src && typeof __callBack=="function"){
+		__callBack(newScript);
+	}
+}
+/**
+ * 将完整的 HTML 源码字符串分离为 head 和 body 部分
+ * @param {string} htmlString - 完整的 HTML 源码（字符串）
+ * @returns {{ head: string, body: string }} 分离后的 head 和 body 内容（不包含 <head> 和 <body> 标签本身）
+ */
+function parseHtmlToHeadBody(htmlString) {
+    // 安全兜底：如果输入为空或非字符串
+    if (typeof htmlString !== 'string' || !htmlString.trim()) {
+        return { head: '', body: '' };
+    }
+
+    // 使用 DOMParser 安全解析 HTML（不会执行脚本）
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    // 提取 <head> 内部内容（不包含 <head> 标签）
+    let headContent = '';
+    if (doc.head) {
+        headContent = Array.from(doc.head.childNodes)
+            .map(node => {
+                // 使用 outerHTML 保留元素，对于文本/注释节点使用 nodeValue
+                if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE || node.nodeType === Node.COMMENT_NODE) {
+                    return node.nodeType === Node.TEXT_NODE 
+                        ? node.textContent 
+                        : node.outerHTML || '';
+                }
+                return '';
+            })
+            .join('');
+    }
+
+    // 提取 <body> 内部内容（不包含 <body> 标签）
+    let bodyContent = '';
+    if (doc.body) {
+        bodyContent = Array.from(doc.body.childNodes)
+            .map(node => {
+                if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE || node.nodeType === Node.COMMENT_NODE) {
+                    return node.nodeType === Node.TEXT_NODE 
+                        ? node.textContent 
+                        : node.outerHTML || '';
+                }
+                return '';
+            })
+            .join('');
+    }
+
+    // 清理多余的空白（可选）
+    headContent = headContent.replace(/^\s+|\s+$/g, '');
+    bodyContent = bodyContent.replace(/^\s+|\s+$/g, '');
+    return {
+        head: headContent,
+        body: bodyContent
+    };
+}
+/**
+ * 将 head HTML 字符串安全插入到 document.head
+ * @param {string} headHtml - head 内容字符串（不含 <head> 标签）
+ */
+async function insertHead(headHtml) {
+ return new Promise((resolve, reject) => {
+		try{
+				if (!headHtml || typeof headHtml !== 'string') resolve(-1); 
+				// 创建一个临时容器来解析 HTML
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(`<html><head>${headHtml}</head></html>`, 'text/html');
+
+				// 遍历解析出的 head 子节点并逐个添加到当前页面的 head
+				const newHead = doc.head;
+				let __JSCNT=0;
+				let __loadSuccess=function(e){
+					__JSCNT--;
+					if(__JSCNT<=0){
+						const scripts = document.head.querySelectorAll('script');
+						scripts.forEach(function(originalScript){
+							if (!originalScript.src)__executeScript(originalScript,"script");
+						});
+
+						resolve(1);
+					}
+				}
+				for (const node of Array.from(newHead.childNodes)) {
+					// 克隆节点（避免 DOM 移动问题）
+					const clonedNode = node.cloneNode(true);
+					
+					const tagName = node.tagName;
+					if (tagName === 'meta') {
+						const attr = node.getAttribute('charset') || node.getAttribute('http-equiv');
+						if (attr && document.head.querySelector(`meta[${attr ? 'charset' : 'http-equiv'}="${attr}"]`)) {
+							continue; // 已存在，跳过
+						}
+					} else if (tagName === 'title') {
+						// 直接更新 title 而不是追加
+						document.title = node.textContent;
+						continue;
+					}else if(tagName=="SCRIPT"||tagName=="LINK"){
+						const script = document.createElement(tagName);
+						for (const attr of clonedNode.attributes) {
+							script.setAttribute(attr.name, attr.value);
+						}
+						if(tagName=="SCRIPT" && script.src){
+							__JSCNT++;
+							script.onload=__loadSuccess;
+						}
+						document.head.appendChild(script);
+					}else {
+						// 添加到当前页面的 head
+						document.head.appendChild(clonedNode);
+					}
+				}
+			}catch(e){
+				reject(e);
+			}
+	});
+}
+
+
+		
+if(document.location.origin=="file://"){
+	// 发送跨域请求
+	window.fetch=function (url, options = {}) {
+	  return new Promise((resolve, reject) => {
+		const requestId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+		
+		const handleMessage = (event) => {
+		  const data = event.data;
+		  if (data && data.type === 'CROSS_ORIGIN_FETCH_RESPONSE' && 
+			  data.requestId === requestId) {
+			window.removeEventListener('message', handleMessage);
+			if (data.success) {
+			  resolve(data.data.data);
+			} else {
+			  reject(new Error(data.error));
+			}
+		  }
+		};
+		
+		window.addEventListener('message', handleMessage);
+		
+		window.postMessage({
+		  type: 'CROSS_ORIGIN_FETCH',
+		  requestId: requestId,
+		  url: url,
+		  options: options
+		}, '*'); // 前端始终使用 '*' 
+		
+		setTimeout(() => {
+		  window.removeEventListener('message', handleMessage);
+		  reject(new Error('Request timeout'));
+		}, 10000);
+	  });
+	}
+}
+
+		
+function loadScript(src) {
+	return new Promise((resolve, reject) => {
+		// 防止重复加载
+		if (document.querySelector(`script[src="${src}"]`)) {
+			resolve();
+			return;
+		}
+		const script = document.createElement('script');
+		script.src = src;
+		script.onload = () => resolve();
+		script.onerror = () => reject(new Error(`加载失败: ${src}`));
+		document.head.appendChild(script);
+	});
+}
+
+ function showTextareaModal(i, s) {
+    // 1. 创建遮罩层（确保最顶层）
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+
+    // 2. 创建弹窗容器
+    const modal = document.createElement('div');
+    modal.style.backgroundColor = '#fff';
+    modal.style.borderRadius = '8px';
+    modal.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+    modal.style.width = '90%';
+    modal.style.maxWidth = '100vw';
+    modal.style.maxHeight = '100vh';
+    modal.style.overflow = 'hidden';
+    modal.style.display = 'flex';
+    modal.style.flexDirection = 'column';
+
+    // 3. 创建 textarea
+    const textarea = document.createElement('textarea');
+    textarea.style.width = '100%';
+    textarea.style.height = '98vh';
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.padding = '16px';
+    textarea.style.resize = 'vertical';
+    textarea.style.fontSize = '14px';
+    textarea.style.boxSizing = 'border-box';
+
+    // 4. 创建按钮容器
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.padding = '12px 16px';
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.justifyContent = 'flex-end';
+    buttonContainer.style.gap = '10px';
+
+    // 5. 关闭按钮
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '关闭';
+    closeButton.style.padding = '6px 12px';
+    closeButton.style.border = '1px solid #ccc';
+    closeButton.style.backgroundColor = '#f0f0f0';
+    closeButton.style.borderRadius = '4px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '14px';
+    closeButton.onclick = () => {
+        document.body.removeChild(overlay);
+    };
+
+    // 6. 提交按钮
+    const submitButton = document.createElement('button');
+    submitButton.textContent = '提交';
+    submitButton.style.padding = '6px 12px';
+    submitButton.style.border = '1px solid #4CAF50';
+    submitButton.style.backgroundColor = '#4CAF50';
+    submitButton.style.color = 'white';
+    submitButton.style.borderRadius = '4px';
+    submitButton.style.cursor = 'pointer';
+    submitButton.style.fontSize = '14px';
+	
+    submitButton.onclick = () => {
+        const value = textarea.value;
+        if(s && typeof s==="function") s(value); // 执行回调 
+        document.body.removeChild(overlay); // 关闭弹窗
+    }; 
+
+    // 7. 组装 DOM
+    buttonContainer.appendChild(closeButton);
+    buttonContainer.appendChild(submitButton);
+    modal.appendChild(textarea);
+    modal.appendChild(buttonContainer);
+    overlay.appendChild(modal);
+
+    // 8. 添加到 body
+    document.body.appendChild(overlay);
+	if(i && typeof i==="string")textarea.value=i;
+	else if(i && typeof i==="function")i(textarea);
+    // 9. 聚焦 textarea（可选）
+    setTimeout(() => textarea.focus(), 100);
+}
+
+
+async function listIndexedDBDatabases() {
+	if (!window.indexedDB) {
+		console.log("当前浏览器不支持 IndexedDB");
+		return [];
+	}
+
+	// 检查是否支持 indexedDB.databases()
+	if (typeof indexedDB.databases === 'function') {
+		try {
+			const databases = await indexedDB.databases();
+			console.log(`当前 origin 下共有 ${databases.length} 个 IndexedDB 数据库：`);
+			let result=[];
+			databases.forEach((db, index) => {
+				console.log(`${index + 1}. 名称: "${db.name}", 版本: ${db.version}`);
+				if(db.name!=_sys_db_name)result.push(db.name);
+			});
+			return result;//databases.map(db => db.name);
+		} catch (error) {
+			console.error("获取数据库列表失败:", error);
+			return [];
+		}
+	} else {
+		console.warn("当前浏览器不支持 indexedDB.databases() 方法，无法列出数据库。");
+		// 可选：提示用户手动输入数据库名或使用其他方式
+		return [];
+	}
+}
+		
+// 全局变量
+let _db={};
+let _lastDb;
+let _sys_db_name="_sys_db_name_";
+
+// 初始化IndexedDB
+function initDB(dbName,successCallBack,upgradeCallBack) {
+	const request = indexedDB.open(dbName, 3);
+	request.onerror = function(event) {
+		console.error('数据库打开失败:', event.target.error);
+	};
+	request.onsuccess = function(event) {
+		_db[dbName] = event.target.result;
+		_lastDb=event.target.result;
+		if(typeof successCallBack=="function"){
+			successCallBack(_lastDb);
+		}
+	};
+	request.onupgradeneeded = function(event) {
+		_db[dbName] = event.target.result;
+		_lastDb=event.target.result;
+		if(typeof upgradeCallBack=="function"){
+			upgradeCallBack(_lastDb);
+		}
+	};
+}
+function getDb(dbName){if(dbName){return _db[dbName];}else{ return _lastDb;}}
+function getSrc(limit){
+	 if(limit==null || typeof limit =="undefined"||limit==0)limit=0;
+	 else if(!limit)limit=1;
+	 return new Promise((resolve, reject) => {
+		 initDB(_sys_db_name,(_db)=>{
+						const store = _db.transaction('sys', 'readonly').objectStore('sys');
+						const cursorRequest = store.openCursor(null, 'prev'); // 自动按 id 降序
+						const results = [];
+						cursorRequest.onsuccess = (e) => {
+							const cursor = e.target.result;
+							 if(limit==0){
+								 resolve(cursor?cursor.value:null);
+							} 
+							 if (cursor &&(limit==-1|| results.length<limit)) {
+								results.push(cursor.value);
+								cursor.continue();
+							} else {
+								resolve(results);
+							}
+						};
+						
+					},(_db)=>{
+					if (!_db.objectStoreNames.contains('sys')) {
+						const sysStore = _db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
+						sysStore.createIndex('html', 'html', { unique: false });
+					}
+		 });
+	 });
+}
+function setSrc(_html){
+	 return new Promise((resolve, reject) => {
+		const  transaction = getDb(_sys_db_name).transaction(['sys'],'readwrite');
+		const store = transaction.objectStore('sys');
+		const html_src = { html: _html, createdAt: new Date() };
+		const request = store.add(html_src);
+		request.onsuccess = function() {
+		   console.log("更新成功");
+		   resolve(true);
+		};
+		request.onerror = function() {
+			console.log("更新失败");
+			resolve(false);
+		};
+	});
+}
+
+ (async function(){
+	let htmlDoc=parseHtmlToHeadBody((await getSrc()).html);
+	insertHead(htmlDoc.head).then((r)=>{
+		if(r==1){
+			document.body.innerHTML=htmlDoc.body;
+			const scripts = document.body.querySelectorAll('script');
+			let __JSCNT=0;
+			function bodyLoadSuceess(e){
+				__JSCNT--;
+				if(__JSCNT<=0){
+					scripts.forEach(function(dom){
+					if(!dom.src){
+						__executeScript(dom,"script");
+					}
+				});
+				}
+			}
+			scripts.forEach(function(dom){
+				if(dom.src){
+					__JSCNT++;
+					__executeScript(dom,"src",bodyLoadSuceess);
+				}
+			});
+			if(__JSCNT<=0)bodyLoadSuceess();
+		}else{
+			console.error(r);
+		}
+	}) 
+ })();
+
 </script>
  
