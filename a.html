@@ -198,8 +198,9 @@ var S=new (function(){
 				 });
 			};
 			this.setSrc=function (_html){
+				let that=this;
 				 return new Promise((resolve, reject) => {
-					const  transaction = getDb(_sys_db_name).transaction(['sys'],'readwrite');
+					const  transaction = that.getDb(that._sys_db_name).transaction(['sys'],'readwrite');
 					const store = transaction.objectStore('sys');
 					const html_src = { html: _html, createdAt: new Date() };
 					const request = store.add(html_src);
