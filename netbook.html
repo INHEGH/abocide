@@ -14,259 +14,259 @@
     <link href="https://cdn.jsdelivr.net/npm/@wangeditor/editor@5.1.23/dist/css/style.css" rel="stylesheet" -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-	<script>
-
+	
+<script id="__system_script__001">
 
 Date.prototype.format = function (fmt) {var o = {"M+": this.getMonth() + 1,"d+": this.getDate(),"H+": this.getHours(),"m+": this.getMinutes(),"s+": this.getSeconds(),"q+": Math.floor((this.getMonth() + 3) / 3),"S": this.getMilliseconds() };if (/(y+)/.test(fmt)) {fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));}for (var k in o) {if (new RegExp("(" + k + ")").test(fmt)) {fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));}}return fmt;};
-
-		
-if(document.location.origin=="file://"){
-	// 发送跨域请求
-	window.fetch=function (url, options = {}) {
-	  return new Promise((resolve, reject) => {
-		const requestId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-		
-		const handleMessage = (event) => {
-		  const data = event.data;
-		  if (data && data.type === 'CROSS_ORIGIN_FETCH_RESPONSE' && 
-			  data.requestId === requestId) {
-			window.removeEventListener('message', handleMessage);
-			if (data.success) {
-			  resolve(data.data.data);
-			} else {
-			  reject(new Error(data.error));
-			}
-		  }
-		};
-		
-		window.addEventListener('message', handleMessage);
-		
-		window.postMessage({
-		  type: 'CROSS_ORIGIN_FETCH',
-		  requestId: requestId,
-		  url: url,
-		  options: options
-		}, '*'); // 前端始终使用 '*' 
-		
-		setTimeout(() => {
-		  window.removeEventListener('message', handleMessage);
-		  reject(new Error('Request timeout'));
-		}, 10000);
-	  });
-	}
-}
-
-		
-	function loadScript(src) {
-		return new Promise((resolve, reject) => {
-			// 防止重复加载
-			if (document.querySelector(`script[src="${src}"]`)) {
-				resolve();
-				return;
-			}
-			const script = document.createElement('script');
-			script.src = src;
-			script.onload = () => resolve();
-			script.onerror = () => reject(new Error(`加载失败: ${src}`));
-			document.head.appendChild(script);
-		});
-	}
-
- function showTextareaModal(i, s) {
-    // 1. 创建遮罩层（确保最顶层）
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    overlay.style.zIndex = '9999';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'center';
-
-    // 2. 创建弹窗容器
-    const modal = document.createElement('div');
-    modal.style.backgroundColor = '#fff';
-    modal.style.borderRadius = '8px';
-    modal.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-    modal.style.width = '90%';
-    modal.style.maxWidth = '100vw';
-    modal.style.maxHeight = '100vh';
-    modal.style.overflow = 'hidden';
-    modal.style.display = 'flex';
-    modal.style.flexDirection = 'column';
-
-    // 3. 创建 textarea
-    const textarea = document.createElement('textarea');
-    textarea.style.width = '100%';
-    textarea.style.height = '98vh';
-    textarea.style.border = 'none';
-    textarea.style.outline = 'none';
-    textarea.style.padding = '16px';
-    textarea.style.resize = 'vertical';
-    textarea.style.fontSize = '14px';
-    textarea.style.boxSizing = 'border-box';
-
-    // 4. 创建按钮容器
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.padding = '12px 16px';
-    buttonContainer.style.display = 'flex';
-    buttonContainer.style.justifyContent = 'flex-end';
-    buttonContainer.style.gap = '10px';
-
-    // 5. 关闭按钮
-    const closeButton = document.createElement('button');
-    closeButton.textContent = '关闭';
-    closeButton.style.padding = '6px 12px';
-    closeButton.style.border = '1px solid #ccc';
-    closeButton.style.backgroundColor = '#f0f0f0';
-    closeButton.style.borderRadius = '4px';
-    closeButton.style.cursor = 'pointer';
-    closeButton.style.fontSize = '14px';
-    closeButton.onclick = () => {
-        document.body.removeChild(overlay);
-    };
-
-    // 6. 提交按钮
-    const submitButton = document.createElement('button');
-    submitButton.textContent = '提交';
-    submitButton.style.padding = '6px 12px';
-    submitButton.style.border = '1px solid #4CAF50';
-    submitButton.style.backgroundColor = '#4CAF50';
-    submitButton.style.color = 'white';
-    submitButton.style.borderRadius = '4px';
-    submitButton.style.cursor = 'pointer';
-    submitButton.style.fontSize = '14px';
-	
-    submitButton.onclick = () => {
-        const value = textarea.value;
-        if(s && typeof s==="function") s(value); // 执行回调 
-        document.body.removeChild(overlay); // 关闭弹窗
-    }; 
-
-    // 7. 组装 DOM
-    buttonContainer.appendChild(closeButton);
-    buttonContainer.appendChild(submitButton);
-    modal.appendChild(textarea);
-    modal.appendChild(buttonContainer);
-    overlay.appendChild(modal);
-
-    // 8. 添加到 body
-    document.body.appendChild(overlay);
-	if(i && typeof i==="string")textarea.value=i;
-	else if(i && typeof i==="function")i(textarea);
-    // 9. 聚焦 textarea（可选）
-    setTimeout(() => textarea.focus(), 100);
-}
-
-
-async function listIndexedDBDatabases() {
-	if (!window.indexedDB) {
-		console.log("当前浏览器不支持 IndexedDB");
-		return [];
-	}
-
-	// 检查是否支持 indexedDB.databases()
-	if (typeof indexedDB.databases === 'function') {
-		try {
-			const databases = await indexedDB.databases();
-			console.log(`当前 origin 下共有 ${databases.length} 个 IndexedDB 数据库：`);
-			let result=[];
-			databases.forEach((db, index) => {
-				console.log(`${index + 1}. 名称: "${db.name}", 版本: ${db.version}`);
-				if(db.name!=_sys_db_name)result.push(db.name);
-			});
-			return result;//databases.map(db => db.name);
-		} catch (error) {
-			console.error("获取数据库列表失败:", error);
-			return [];
-		}
-	} else {
-		console.warn("当前浏览器不支持 indexedDB.databases() 方法，无法列出数据库。");
-		// 可选：提示用户手动输入数据库名或使用其他方式
-		return [];
-	}
-}
-		
-// 全局变量
-let _db={};
-let _lastDb;
-let _sys_db_name="_sys_db_name_";
-
-// 初始化IndexedDB
-function initDB(dbName,successCallBack,upgradeCallBack) {
-	const request = indexedDB.open(dbName, 3);
-	request.onerror = function(event) {
-		console.error('数据库打开失败:', event.target.error);
-	};
-	request.onsuccess = function(event) {
-		_db[dbName] = event.target.result;
-		_lastDb=event.target.result;
-		if(typeof successCallBack=="function"){
-			successCallBack(_lastDb);
-		}
-	};
-	request.onupgradeneeded = function(event) {
-		_db[dbName] = event.target.result;
-		_lastDb=event.target.result;
-		if(typeof upgradeCallBack=="function"){
-			upgradeCallBack(_lastDb);
-		}
-	};
-}
-function getDb(dbName){if(dbName){return _db[dbName];}else{ return _lastDb;}}
-function getSrc(limit){
-	 if(limit==null || typeof limit =="undefined"||limit==0)limit=0;
-	 else if(!limit)limit=1;
-	 return new Promise((resolve, reject) => {
-		 initDB(_sys_db_name,(_db)=>{
-						const store = _db.transaction('sys', 'readonly').objectStore('sys');
-						const cursorRequest = store.openCursor(null, 'prev'); // 自动按 id 降序
-						const results = [];
-						cursorRequest.onsuccess = (e) => {
-							const cursor = e.target.result;
-							 if(limit==0){
-								 resolve(cursor?cursor.value:null);
-							} 
-							 if (cursor &&(limit==-1|| results.length<limit)) {
-								results.push(cursor.value);
-								cursor.continue();
-							} else {
-								resolve(results);
-							}
-						};
-						
-					},(_db)=>{
-					if (!_db.objectStoreNames.contains('sys')) {
-						const sysStore = _db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
-						sysStore.createIndex('html', 'html', { unique: false });
+var S=new (function(){
+			this.getTime=function(){return new Date().format("HH:mm:ss");};
+			this.getDate=function(){return new Date().format("yyyy-MM-dd");};
+			this.getDateTime=function(){return new Date().format("yyyy-MM-dd HH:mm:ss");};
+			this.loadScript=function (src) {
+				return new Promise((resolve, reject) => {
+					// 防止重复加载
+					if (document.querySelector(`script[src="${src}"]`)) {
+						resolve();
+						return;
 					}
-		 });
-	 });
-}
-function setSrc(_html){
-	 return new Promise((resolve, reject) => {
-		const  transaction = getDb(_sys_db_name).transaction(['sys'],'readwrite');
-		const store = transaction.objectStore('sys');
-		const html_src = { html: _html, createdAt: new Date() };
-		const request = store.add(html_src);
-		request.onsuccess = function() {
-		   console.log("更新成功");
-		   resolve(true);
+					const script = document.createElement('script');
+					script.src = src;
+					script.onload = () => resolve();
+					script.onerror = () => reject(new Error(`加载失败: ${src}`));
+					document.head.appendChild(script);
+				});
+			};
+
+			this.showTextareaModal=function (i, s) {
+				// 1. 创建遮罩层（确保最顶层）
+				const overlay = document.createElement('div');
+				overlay.style.position = 'fixed';
+				overlay.style.top = '0';
+				overlay.style.left = '0';
+				overlay.style.width = '100%';
+				overlay.style.height = '100%';
+				overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+				overlay.style.zIndex = '9999';
+				overlay.style.display = 'flex';
+				overlay.style.justifyContent = 'center';
+				overlay.style.alignItems = 'center';
+
+				// 2. 创建弹窗容器
+				const modal = document.createElement('div');
+				modal.style.backgroundColor = '#fff';
+				modal.style.borderRadius = '8px';
+				modal.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+				modal.style.width = '90%';
+				modal.style.maxWidth = '100vw';
+				modal.style.maxHeight = '100vh';
+				modal.style.overflow = 'hidden';
+				modal.style.display = 'flex';
+				modal.style.flexDirection = 'column';
+
+				// 3. 创建 textarea
+				const textarea = document.createElement('textarea');
+				textarea.style.width = '100%';
+				textarea.style.height = '98vh';
+				textarea.style.border = 'none';
+				textarea.style.outline = 'none';
+				textarea.style.padding = '16px';
+				textarea.style.resize = 'vertical';
+				textarea.style.fontSize = '14px';
+				textarea.style.boxSizing = 'border-box';
+
+				// 4. 创建按钮容器
+				const buttonContainer = document.createElement('div');
+				buttonContainer.style.padding = '12px 16px';
+				buttonContainer.style.display = 'flex';
+				buttonContainer.style.justifyContent = 'flex-end';
+				buttonContainer.style.gap = '10px';
+
+				// 5. 关闭按钮
+				const closeButton = document.createElement('button');
+				closeButton.textContent = '关闭';
+				closeButton.style.padding = '6px 12px';
+				closeButton.style.border = '1px solid #ccc';
+				closeButton.style.backgroundColor = '#f0f0f0';
+				closeButton.style.borderRadius = '4px';
+				closeButton.style.cursor = 'pointer';
+				closeButton.style.fontSize = '14px';
+				closeButton.onclick = () => {
+					document.body.removeChild(overlay);
+				};
+
+				// 6. 提交按钮
+				const submitButton = document.createElement('button');
+				submitButton.textContent = '提交';
+				submitButton.style.padding = '6px 12px';
+				submitButton.style.border = '1px solid #4CAF50';
+				submitButton.style.backgroundColor = '#4CAF50';
+				submitButton.style.color = 'white';
+				submitButton.style.borderRadius = '4px';
+				submitButton.style.cursor = 'pointer';
+				submitButton.style.fontSize = '14px';
+				
+				submitButton.onclick = () => {
+					const value = textarea.value;
+					if(s && typeof s==="function") s(value); // 执行回调 
+					document.body.removeChild(overlay); // 关闭弹窗
+				}; 
+
+				// 7. 组装 DOM
+				buttonContainer.appendChild(closeButton);
+				buttonContainer.appendChild(submitButton);
+				modal.appendChild(textarea);
+				modal.appendChild(buttonContainer);
+				overlay.appendChild(modal);
+
+				// 8. 添加到 body
+				document.body.appendChild(overlay);
+				if(i && typeof i==="string")textarea.value=i;
+				else if(i && typeof i==="function")i(textarea);
+				// 9. 聚焦 textarea（可选）
+				setTimeout(() => textarea.focus(), 100);
+			};
+
+
+			this.listIndexedDBDatabases=async function () {
+				if (!window.indexedDB) {
+					console.log("当前浏览器不支持 IndexedDB");
+					return [];
+				}
+
+				// 检查是否支持 indexedDB.databases()
+				if (typeof indexedDB.databases === 'function') {
+					try {
+						const databases = await indexedDB.databases();
+						console.log(`当前 origin 下共有 ${databases.length} 个 IndexedDB 数据库：`);
+						let result=[];
+						databases.forEach((db, index) => {
+							console.log(`${index + 1}. 名称: "${db.name}", 版本: ${db.version}`);
+							if(db.name!=_sys_db_name)result.push(db.name);
+						});
+						return result;//databases.map(db => db.name);
+					} catch (error) {
+						console.error("获取数据库列表失败:", error);
+						return [];
+					}
+				} else {
+					console.warn("当前浏览器不支持 indexedDB.databases() 方法，无法列出数据库。");
+					// 可选：提示用户手动输入数据库名或使用其他方式
+					return [];
+				}
+			};
+					
+			// 全局变量
+			this._db={};
+			this._lastDb;
+			this._sys_db_name="_sys_db_name_";
+
+			// 初始化IndexedDB
+			this.initDB=function (dbName,successCallBack,upgradeCallBack) {
+				const request = indexedDB.open(dbName, 3);
+				let that=this;
+				request.onerror = function(event) {
+					console.error('数据库打开失败:', event.target.error);
+				};
+				request.onsuccess = function(event) {
+					that._db[dbName] = event.target.result;
+					that._lastDb=event.target.result;
+					if(typeof successCallBack=="function"){
+						successCallBack(that._lastDb);
+					}
+				};
+				request.onupgradeneeded = function(event) {
+					that._db[dbName] = event.target.result;
+					that._lastDb=event.target.result;
+					if(typeof upgradeCallBack=="function"){
+						upgradeCallBack(that._lastDb);
+					}
+				};
+			};
+			this.getDb=function (dbName){if(dbName){return this._db[dbName];}else{ return this._lastDb;}};
+			this.getSrc=function (limit){
+				 if(limit==null || typeof limit =="undefined"||limit==0)limit=0;
+				 else if(!limit)limit=1;
+				 let that=this;
+				 return new Promise((resolve, reject) => {
+					 that.initDB(that._sys_db_name,(__db)=>{
+									const store = __db.transaction('sys', 'readonly').objectStore('sys');
+									const cursorRequest = store.openCursor(null, 'prev'); // 自动按 id 降序
+									const results = [];
+									cursorRequest.onsuccess = (e) => {
+										const cursor = e.target.result;
+										 if(limit==0){
+											 resolve(cursor?cursor.value:null);
+										} 
+										 if (cursor &&(limit==-1|| results.length<limit)) {
+											results.push(cursor.value);
+											cursor.continue();
+										} else {
+											resolve(results);
+										}
+									};
+									
+								},(__db)=>{
+								if (!__db.objectStoreNames.contains('sys')) {
+									const sysStore = _db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
+									sysStore.createIndex('html', 'html', { unique: false });
+								}
+					 });
+				 });
+			};
+			this.setSrc=function (_html){
+				 return new Promise((resolve, reject) => {
+					const  transaction = getDb(_sys_db_name).transaction(['sys'],'readwrite');
+					const store = transaction.objectStore('sys');
+					const html_src = { html: _html, createdAt: new Date() };
+					const request = store.add(html_src);
+					request.onsuccess = function() {
+					   console.log("更新成功");
+					   resolve(true);
+					};
+					request.onerror = function() {
+						console.log("更新失败");
+						resolve(false);
+					};
+				});
+			};
+			this.fetch=function (url, options = {}) {
+			  return new Promise((resolve, reject) => {
+				const requestId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+				
+				const handleMessage = (event) => {
+				  const data = event.data;
+				  if (data && data.type === 'CROSS_ORIGIN_FETCH_RESPONSE' && 
+					  data.requestId === requestId) {
+					window.removeEventListener('message', handleMessage);
+					if (data.success) {
+					  resolve(data.data.data);
+					} else {
+					  reject(new Error(data.error));
+					}
+				  }
+				};
+				
+				window.addEventListener('message', handleMessage);
+				
+				window.postMessage({
+				  type: 'CROSS_ORIGIN_FETCH',
+				  requestId: requestId,
+				  url: url,
+				  options: options
+				}, '*'); // 前端始终使用 '*' 
+				
+				setTimeout(() => {
+				  window.removeEventListener('message', handleMessage);
+				  reject(new Error('Request timeout'));
+				}, 10000);
+			  });
 		};
-		request.onerror = function() {
-			console.log("更新失败");
-			resolve(false);
-		};
-	});
-}
+		})();
+	if(document.location.origin=="file://") window.fetch=S.fetch;
 
+</script>
 
-</script> 
-
-    <style>
+  <style>
         :root {
             --header-height: 10%;
             --nav-width: 15%;
@@ -584,7 +584,7 @@ function setSrc(_html){
             display: flex;
             flex-direction: column;
             overflow: hidden;
-			height:85vh;
+            height:85vh;
         }
         #editor-toolbar {
             border-bottom: 1px solid var(--border-color);
@@ -615,12 +615,12 @@ function setSrc(_html){
             overflow: auto;
             padding: 12px;
         }
-		 /*.w-e-scroll pre {
+	 /*.w-e-scroll pre {
             max-height: 500px;
             overflow: auto;
         }*/
 		
-		.w-e-scroll  {
+	.w-e-scroll  {
            max-height: 83vh;
         }
 		
@@ -929,7 +929,7 @@ function setSrc(_html){
 <body>
     <!-- 头部 -->
     <div class="header">
-        <div ondblclick="getSrc().then((a)=>{ showTextareaModal(a.html,function (v) {setSrc(v)}); })" class="title">本地记事本</div>
+        <div ondblclick="S.getSrc().then((a)=>{ S.showTextareaModal(a.html,function (v) {S.setSrc(v)}); })" class="title">本地记事本</div>
         <div class="header-date">
             <div class="date-time-container">
                 <div class="date-display" id="currentDate"></div>
@@ -1054,7 +1054,7 @@ function setSrc(_html){
         let lastActiveNoteId = null;
 		function getUsers(){
 			// 调用函数
-			listIndexedDBDatabases().then(names => {
+			S.listIndexedDBDatabases().then(names => {
 				console.log(names);
 			});
 		}
@@ -1074,17 +1074,17 @@ function setSrc(_html){
 		}
 		
 		function getNotesStore(readonly){
-		    const  transaction = getDb(dbName).transaction(['notes'], readonly?'readonly':'readwrite');
+		    const  transaction = S.getDb(dbName).transaction(['notes'], readonly?'readonly':'readwrite');
             return transaction.objectStore('notes');
 		}
 		
 		function getGroupStore(readonly){
-		    const  transaction = getDb(dbName).transaction(['groups'], readonly?'readonly':'readwrite');
+		    const  transaction = S.getDb(dbName).transaction(['groups'], readonly?'readonly':'readwrite');
             return transaction.objectStore('groups');
 		}
 		
-        initDB(dbName,(_db)=>{
-			db=_db;
+        S.initDB(dbName,(__db)=>{
+			db=__db;
 			init();
 			try{loadNotebookTree();}catch(e){
 				setTimeout(() => {
@@ -1097,8 +1097,8 @@ function setSrc(_html){
 					openNote(lastActiveNoteId);
 				}, 100);
 			}
-		},(_db)=>{
-				db=_db;
+		},(__db)=>{
+				db=__db;
 				if (!db.objectStoreNames.contains('groups')) {
 					const groupStore = db.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
 					groupStore.createIndex('name', 'name', { unique: false });
@@ -1251,7 +1251,11 @@ function setSrc(_html){
             editor = createEditor({
                 selector: '#editor',
                 html: '<p><br></p>',
-                config: {
+                config: { 
+                    scroll: false,
+                    scrollTo: {
+                       enable: false
+                     },
                     placeholder: '开始编写您的记事本...',
                     onChange(editor) {
                         // 只有当内容真正发生变化时才标记为有未保存更改
@@ -1264,8 +1268,7 @@ function setSrc(_html){
                 selector: '#editor-toolbar',
                 config: {
                     excludeKeys: [
-                      //  'group-video',
-                        'insertImage'
+                       'group-video'
                     ],
                     // 添加自定义按钮
                      insertKeys: {
@@ -1350,6 +1353,7 @@ function setSrc(_html){
             }
             updateViewMode();
         }
+         
         
         // 切换源码模式
         function toggleSourceMode() {
@@ -2052,7 +2056,6 @@ function setSrc(_html){
             }, 300);
         }
         
-         
         
 		function  getExportHtml(type){
 			 const html = document.getElementById("editor").innerHTML;
@@ -2090,7 +2093,7 @@ function setSrc(_html){
             }
         }
         
-		function exportToImage() {
+function exportToImage() {
 			exportTo("image") 
 		}
 		function exportToPDF() {
@@ -2128,7 +2131,6 @@ function setSrc(_html){
                 showNotification('导出'+type+'失败:', 'error');
             }
         }
-        
         // 备份数据
         function backupData() {
             const exportObj = {
@@ -2397,7 +2399,25 @@ function setSrc(_html){
 			return null;
 
 		}
-		
+let keymode=false,laseScroll=0,sc=document.querySelector(".w-e-scroll");
+(function initScrollEvent(){
+        sc=document.querySelector(".w-e-scroll");
+	if(sc){
+		sc.onscroll=function (e) {if(keymode) sc.scrollTop=laseScroll;}
+		document.onkeydown=function(e){  laseScroll= sc.scrollTop;keymode=true;
+		try{
+			const gbwzy=window.getSelection().getRangeAt(0).cloneRange().getBoundingClientRect().top;
+			if(gbwzy >= sc.getBoundingClientRect().bottom )keymode=false;
+			if(gbwzy<=sc.getBoundingClientRect().top )keymode=false;
+		}catch(e){ console.error(e);}
+ }
+		document.onmousedown=function(e){ keymode=false; }
+		document.onwheel=function(e){ keymode=false; }
+		console.log("initScrollEvent success");
+	}else{
+		setTimeout(initScrollEvent,300);
+	}
+})();
 	</script>
 </body>
 </html>
