@@ -246,7 +246,64 @@ var S=new (function(){
 				}, 10000);
 			  });
 		};
-		})();
+		this.toJson=function(str){
+			if(typeof str=="string"){
+				try{str=JSON.parse(str);}catch(e){  try{str=eval("str="+str);}catch(e2){} }
+			}
+			return str;
+		};
+		this.http=async function (url ,config){
+			return new Promise((resolve, reject) => {
+				 try {
+						let requestOptions={};
+						let timeout=10000;
+						if(typeof config==="number"){
+							timeout=config;
+						}else if(config){
+							timeout=config.timeout||10000;
+							requestOptions = {
+							  method: config.method || 'GET',
+							  headers: config.headers || {},
+							  ...config
+							};
+							// 移除可能引起问题的属性
+							delete requestOptions.url;
+							delete requestOptions.action;
+							delete requestOptions.timeout;
+						}
+						if(!url || url.trim().length<1)resolve("");
+						setTimeout(() => { reject(new Error('Request timeout')); }, timeout);
+						fetch(url,requestOptions)
+						.then((response) => {
+								if(response.data)resolve(response.data);
+								else {
+									response.text().then((data)=>{
+										resolve(data);
+									});
+								}
+						})
+						.catch((error) => reject(error));
+					} catch (error) {
+						reject(error);
+					}
+			});
+		};
+		this.post=this.get=async function (url ,config){
+			let result= await this.http(url,config);
+			if(!result)return result;
+			if(result.stack && result.name &&result.name.toLowerCase()=="error") return result.message;
+			return result;
+		};
+		this.postJson=this.getJson=async function (url ,config){
+			let result= await this.http(url,config);
+			if(!result)return {result:result};
+			if(result.stack && result.name &&result.name.toLowerCase()=="error") return  {result:result.message};
+			if(typeof result=="string"){
+				result=this.toJson(result);
+			}
+			return result;
+		};
+	})();
 	if(document.location.origin=="file://") window.fetch=S.fetch;
 
 </script>
