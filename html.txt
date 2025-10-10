@@ -677,7 +677,7 @@
 <body>
     <!-- 头部 -->
     <div class="header">
-        <div ondblclick="getSrc().then((a)=>{ showTextareaModal(a.html,function (v) {setSrc(v)}); })" class="title">本地记事本</div>
+        <div ondblclick="S.getSrc().then((a)=>{ S.showTextareaModal(a.html,function (v) {S.setSrc(v)}); })" class="title">本地记事本</div>
         <div class="header-date">
             <div class="date-time-container">
                 <div class="date-display" id="currentDate"></div>
@@ -802,7 +802,7 @@
         let lastActiveNoteId = null;
 		function getUsers(){
 			// 调用函数
-			listIndexedDBDatabases().then(names => {
+			S.listIndexedDBDatabases().then(names => {
 				console.log(names);
 			});
 		}
@@ -822,16 +822,16 @@
 		}
 		
 		function getNotesStore(readonly){
-		    const  transaction = getDb(dbName).transaction(['notes'], readonly?'readonly':'readwrite');
+		    const  transaction = S.getDb(dbName).transaction(['notes'], readonly?'readonly':'readwrite');
             return transaction.objectStore('notes');
 		}
 		
 		function getGroupStore(readonly){
-		    const  transaction = getDb(dbName).transaction(['groups'], readonly?'readonly':'readwrite');
+		    const  transaction = S.getDb(dbName).transaction(['groups'], readonly?'readonly':'readwrite');
             return transaction.objectStore('groups');
 		}
 		
-        initDB(dbName,(__db)=>{
+        S.initDB(dbName,(__db)=>{
 			db=__db;
 			init();
 			try{loadNotebookTree();}catch(e){
@@ -2147,25 +2147,31 @@ function exportToImage() {
 			return null;
 
 		}
-let keymode=false,laseScroll=0,sc=document.querySelector(".w-e-scroll");
-(function initScrollEvent(){
-        sc=document.querySelector(".w-e-scroll");
-	if(sc){
-		sc.onscroll=function (e) {if(keymode) sc.scrollTop=laseScroll;}
-		document.onkeydown=function(e){  laseScroll= sc.scrollTop;keymode=true;
-		try{
-			const gbwzy=window.getSelection().getRangeAt(0).cloneRange().getBoundingClientRect().top;
-			if(gbwzy >= sc.getBoundingClientRect().bottom )keymode=false;
-			if(gbwzy<=sc.getBoundingClientRect().top )keymode=false;
-		}catch(e){ console.error(e);}
- }
-		document.onmousedown=function(e){ keymode=false; }
-		document.onwheel=function(e){ keymode=false; }
-		console.log("initScrollEvent success");
-	}else{
-		setTimeout(initScrollEvent,300);
-	}
-})();
- 	</script>
+
+		let keymode=false,laseScroll=0,sc=document.querySelector(".w-e-scroll");
+		(function initScrollEvent(){
+			sc=document.querySelector(".w-e-scroll");
+			if(sc){
+				sc.onscroll=function (e) {
+					if(keymode) sc.scrollTop=laseScroll;
+				}
+				document.onkeydown=function(e){ 
+					try{
+						laseScroll= sc.scrollTop;
+						keymode=true;
+						const gbwzy=window.getSelection().getRangeAt(0).cloneRange().getBoundingClientRect().top;  
+						if(gbwzy==0)return ;
+						if(gbwzy >= sc.getBoundingClientRect().bottom )keymode=false;
+						if(gbwzy<=sc.getBoundingClientRect().top )keymode=false;
+					}catch(e){ console.error(e);}
+				}
+				document.onmousedown=function(e){  keymode=false; }
+				document.onwheel=function(e){ keymode=false; }
+				console.log("initScrollEvent success");
+			}else{
+				setTimeout(initScrollEvent,300);
+			}
+		})();
+	</script>
 </body>
 </html>

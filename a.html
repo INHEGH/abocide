@@ -191,7 +191,7 @@ var S=new (function(){
 									
 								},(__db)=>{
 								if (!__db.objectStoreNames.contains('sys')) {
-									const sysStore = _db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
+									const sysStore = __db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
 									sysStore.createIndex('html', 'html', { unique: false });
 								}
 					 });
