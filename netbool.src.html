@@ -207,15 +207,16 @@ var S=new (function(){
 									
 								},(__db)=>{
 								if (!__db.objectStoreNames.contains('sys')) {
-									const sysStore = _db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
+									const sysStore = __db.createObjectStore('sys', { keyPath: 'id', autoIncrement: true });
 									sysStore.createIndex('html', 'html', { unique: false });
 								}
 					 });
 				 });
 			};
 			this.setSrc=function (_html){
+				let that=this;
 				 return new Promise((resolve, reject) => {
-					const  transaction = getDb(_sys_db_name).transaction(['sys'],'readwrite');
+					const  transaction = that.getDb(that._sys_db_name).transaction(['sys'],'readwrite');
 					const store = transaction.objectStore('sys');
 					const html_src = { html: _html, createdAt: new Date() };
 					const request = store.add(html_src);
@@ -2399,25 +2400,30 @@ function exportToImage() {
 			return null;
 
 		}
-let keymode=false,laseScroll=0,sc=document.querySelector(".w-e-scroll");
-(function initScrollEvent(){
-        sc=document.querySelector(".w-e-scroll");
-	if(sc){
-		sc.onscroll=function (e) {if(keymode) sc.scrollTop=laseScroll;}
-		document.onkeydown=function(e){  laseScroll= sc.scrollTop;keymode=true;
-		try{
-			const gbwzy=window.getSelection().getRangeAt(0).cloneRange().getBoundingClientRect().top;
-			if(gbwzy >= sc.getBoundingClientRect().bottom )keymode=false;
-			if(gbwzy<=sc.getBoundingClientRect().top )keymode=false;
-		}catch(e){ console.error(e);}
- }
-		document.onmousedown=function(e){ keymode=false; }
-		document.onwheel=function(e){ keymode=false; }
-		console.log("initScrollEvent success");
-	}else{
-		setTimeout(initScrollEvent,300);
-	}
-})();
+		let keymode=false,laseScroll=0,sc=document.querySelector(".w-e-scroll");
+		(function initScrollEvent(){
+			sc=document.querySelector(".w-e-scroll");
+			if(sc){
+				sc.onscroll=function (e) {
+					if(keymode) sc.scrollTop=laseScroll;
+				}
+				document.onkeydown=function(e){ 
+					try{
+						laseScroll= sc.scrollTop;
+						keymode=true;
+						const gbwzy=window.getSelection().getRangeAt(0).cloneRange().getBoundingClientRect().top;  
+						if(gbwzy==0)return ;
+						if(gbwzy >= sc.getBoundingClientRect().bottom )keymode=false;
+						if(gbwzy<=sc.getBoundingClientRect().top )keymode=false;
+					}catch(e){ console.error(e);}
+				}
+				document.onmousedown=function(e){  keymode=false; }
+				document.onwheel=function(e){ keymode=false; }
+				console.log("initScrollEvent success");
+			}else{
+				setTimeout(initScrollEvent,300);
+			}
+		})();
 	</script>
 </body>
 </html>
