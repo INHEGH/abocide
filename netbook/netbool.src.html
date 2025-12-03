@@ -22,21 +22,38 @@ var S=new (function(){
 			this.getTime=function(){return new Date().format("HH:mm:ss");};
 			this.getDate=function(){return new Date().format("yyyy-MM-dd");};
 			this.getDateTime=function(){return new Date().format("yyyy-MM-dd HH:mm:ss");};
-			this.loadScript=function (src) {
+			this.loadScript=function(src) {
+				if(!src)return new Promise((resolve, reject) => { resolve(); });
+				if(typeof src=="string"){
+					return new Promise((resolve, reject) => {
+						// 防止重复加载
+						if (document.querySelector(`script[src="${src}"]`)) {
+							resolve();
+							return;
+						}
+						const script = document.createElement('script');
+						script.src = src;
+						script.onload = () => resolve({e:event,ele:script});
+						script.onerror = () => reject(new Error(`加载失败: ${src}`));
+						document.head.appendChild(script);
+					});
+				}
+				let that=this;
 				return new Promise((resolve, reject) => {
-					// 防止重复加载
-					if (document.querySelector(`script[src="${src}"]`)) {
-						resolve();
-						return;
+					let success=0;
+					let es=[];
+					for(let i=0;i<src.length;i++){
+						that.loadScript(src[i]).then((res)=>{es.push(res);success++;});
 					}
-					const script = document.createElement('script');
-					script.src = src;
-					script.onload = () => resolve();
-					script.onerror = () => reject(new Error(`加载失败: ${src}`));
-					document.head.appendChild(script);
-				});
+					setInterval(() => {if(success>=src.length)resolve(es);}, 50);
+					setTimeout(() => {if(success<src.length)reject();}, 10000);
+				});	
 			};
-
+			this.loadExcelModel=function (){
+				let jsfile=['https://cdn.staticfile.net/xlsx/0.18.5/xlsx.full.min.js ',
+							'https://cdn.staticfile.net/xlsx-populate/1.21.0/xlsx-populate.js'];
+				return this.loadScript(jsfile);
+			};
 			this.showTextareaModal=function (i, s) {
 				// 1. 创建遮罩层（确保最顶层）
 				const overlay = document.createElement('div');
@@ -1237,6 +1254,23 @@ var S=new (function(){
                     runJs(); 
                 } 
             });
+			 document.getElementById("editor").ondblclick=function(e) {
+				let ele=e.target;
+				if(!ele.tagName=="CODE"){
+					for(let i=0;i<4;i++){
+						ele=ele.parentNode;
+						if(ele.tagName=="CODE")break;
+					}
+				}
+				if(ele.tagName=="CODE"){
+					console.log("this is code ele",ele);
+					  const selection = window.getSelection();
+					  const range = document.createRange();
+					  range.selectNodeContents(ele); // 选中元素内所有文本
+					  selection.removeAllRanges();
+					  selection.addRange(range);
+				}
+			}
         }
 		
 

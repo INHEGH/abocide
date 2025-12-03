@@ -1,66 +1,13 @@
-// 监听来自页面的postMessage
-console.log("dddddd",chrome.runtime,window);// 监听来自页面的postMessage
-
-
-
-
-// 监听来自页面的postMessage
-window.addEventListener('message', async (event) => {console.log("********event*********",event);
-  // 不验证来源，因为 file:// 协议下 origin 是 "null" 字符串
-  const data = event.data;
-  
-  // 检查是否是我们需要处理的跨域请求
-  if (data && data.type === 'CROSS_ORIGIN_FETCH') {
-    try {
-      // 发送消息到background script进行跨域请求
-      const response = await chrome.runtime.sendMessage({
-        action: 'crossOriginFetch',
-        url: data.url,
-        options: data.options || {}
-      });
-      
-      // 安全地确定目标origin
-      let targetOrigin = '*';
-      
-      // 如果不是 file:// 协议（origin 不是 "null" 字符串），使用实际的 origin
-      if (event.origin !== 'null' && event.origin) {
-        targetOrigin = event.origin;
-      }
-      
-      window.postMessage({
-        type: 'CROSS_ORIGIN_FETCH_RESPONSE',
-        requestId: data.requestId,
-        success: true,
-        data: response
-      }, targetOrigin);
-    } catch (error) {
-      let targetOrigin = '*';
-      if (event.origin !== 'null' && event.origin) {
-        targetOrigin = event.origin;
-      }
-      
-      window.postMessage({
-        type: 'CROSS_ORIGIN_FETCH_RESPONSE',
-        requestId: data.requestId,
-        success: false,
-        error: error.message
-      }, targetOrigin);
-    }
-  }
-});
- 
-
 window.addEventListener('load', function(){
-	
-	if(isOaMailPage()){
+	if(P.isTdOaMailPage()){
 		reverseTablesExceptFirstWithBr();
 	}
 	
-});
-
-function isOaMailPage(){
-	return window.location.href.indexOf("general/mail/my/read.php?MAIL_ID")>0;
-}
+	if(P.isFwOaEbuildPage()){
+		let href=location.href;
+		if(href.indexOf("wea_link_keep_show_console")<0)location.href=href+(href.indexOf("?")>0?"&":"?")+"wea_link_keep_show_console";
+	}
+}); 
 
 //实现回复倒序排列
 function reverseTablesExceptFirstWithBr() {
@@ -110,3 +57,6 @@ function reverseTablesExceptFirstWithBr() {
     block.forEach(node => parent.insertBefore(node, null));
   });
 }
+
+
+console.log("我的插件:CONTENT加载完成");

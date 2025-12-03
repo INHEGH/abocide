@@ -1,5 +1,29 @@
-// 监听来自content script的消息
-console.log("xxx","background.js");
+// 设置上下文菜单项
+chrome.runtime.onInstalled.addListener(() => {
+  
+  chrome.contextMenus.create({
+    id: 'IHtoExcel',
+    title: 'TableToExcel'
+  });
+    chrome.contextMenus.create({
+    id: 'show_code',
+    title: '打印CODE'
+  });
+});
+
+// 监听上下文菜单项的点击事件
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === 'IHtoExcel') {
+    toContent("IH.allTableToExcel");
+  }else if (info.menuItemId === 'show_code') {
+    toContent("P.showCode");
+  }
+}); 
+
+
+
+
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'crossOriginFetch') {
     handleCrossOriginFetch(request.url, request.options)
@@ -14,6 +38,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
+
+function toContent(functionName){
+	 chrome.tabs.query({active: true, currentWindow: true}, function(tabs)
+      {
+          chrome.tabs.sendMessage(tabs[0].id, {
+				type:"CALL_FUNCTION",
+				functionName:functionName
+			}, function(response)
+          {
+              console.log('收到结果：'+response);
+          });
+      });
+	  
+}
 
 async function handleCrossOriginFetch(url, options = {}) {
   try {
@@ -56,3 +94,7 @@ async function handleCrossOriginFetch(url, options = {}) {
     throw new Error(`Fetch failed: ${error.message}`);
   }
 }
+
+
+// 监听来自content script的消息
+console.log("我的插件:background.js加载完成");

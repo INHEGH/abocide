@@ -1,19 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Cross-Origin Fetch Helper",
+  "name": "我的插件",
   "version": "1.0",
-  "description": "帮助前端通过postMessage进行跨域fetch请求",
+  "description": "自己随便写的插件",
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["P.js","message.js","content.js"]
+    },
+	{
+      "matches": ["http://192.168.4.89:8010/*","http://192.168.1.20:8080/*"],
+      "js": ["xlsx.full.min.js","xlsx-populate.js","IHtoExcel.js"]
     }
   ],
   "permissions": [
-    "activeTab"
+    "activeTab","contextMenus"
   ],
   "host_permissions": [
     "<all_urls>"

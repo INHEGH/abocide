@@ -926,6 +926,23 @@
                     runJs(); 
                 } 
             });
+			  document.getElementById("editor").ondblclick=function(e) {
+				let ele=e.target;
+				if(!ele.tagName=="CODE"){
+					for(let i=0;i<4;i++){
+						ele=ele.parentNode;
+						if(ele.tagName=="CODE")break;
+					}
+				}
+				if(ele.tagName=="CODE"){
+					console.log("this is code ele",ele);
+					  const selection = window.getSelection();
+					  const range = document.createRange();
+					  range.selectNodeContents(ele); // 选中元素内所有文本
+					  selection.removeAllRanges();
+					  selection.addRange(range);
+				}
+			} 
         }
 		
 
