@@ -213,12 +213,12 @@ var S=new (function(){
 					 });
 				 });
 			};
-			this.setSrc=function (_html){
+			this.setSrc=function (_html,_js){
 				let that=this;
 				 return new Promise((resolve, reject) => {
 					const  transaction = that.getDb(that._sys_db_name).transaction(['sys'],'readwrite');
 					const store = transaction.objectStore('sys');
-					const html_src = { html: _html, createdAt: new Date() };
+					const html_src = { html: _html,js: _js, createdAt: new Date() };
 					const request = store.add(html_src);
 					request.onsuccess = function() {
 					   console.log("更新成功");
