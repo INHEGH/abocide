@@ -320,6 +320,10 @@ var S=new (function(){
 			}
 			return result;
 		};
+
+	    this.sleep=function(ms) {
+         return new Promise(resolve => setTimeout(resolve, ms));
+        }
 		})();
 	if(document.location.origin=="file://") window.fetch=S.fetch;
 
@@ -1141,7 +1145,7 @@ var S=new (function(){
 		    const  transaction = S.getDb(dbName).transaction(['groups'], readonly?'readonly':'readwrite');
             return transaction.objectStore('groups');
 		}
-		
+		/*
         S.initDB(dbName,(__db)=>{
 			db=__db;
 			init();
@@ -1169,7 +1173,7 @@ var S=new (function(){
 				}
 			}
 		);
-		
+		*/
 		
 		if(localStorage.getItem("userid") && typeof loadScript=="function"){
 			 loadScript('tongbu.js');
@@ -2458,6 +2462,36 @@ function exportToImage() {
 			return null;
 
 		}
+
+		  S.initDB(dbName,(__db)=>{
+			db=__db;
+			init();
+			try{loadNotebookTree();}catch(e){
+				setTimeout(() => {
+					loadNotebookTree();
+				}, 200);
+			}
+			// 如果有最后保存的笔记ID，自动加载
+			if (lastActiveNoteId) {
+				setTimeout(() => {
+					openNote(lastActiveNoteId);
+				}, 100);
+			}
+		},(__db)=>{
+				db=__db;
+				if (!db.objectStoreNames.contains('groups')) {
+					const groupStore = db.createObjectStore('groups', { keyPath: 'id', autoIncrement: true });
+					groupStore.createIndex('name', 'name', { unique: false });
+				}
+				if (!db.objectStoreNames.contains('notes')) {
+					const noteStore = db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+					noteStore.createIndex('groupId', 'groupId', { unique: false });
+					noteStore.createIndex('title', 'title', { unique: false });
+				}
+			}
+		);
+
+		
 		let keymode=false,laseScroll=0,sc=document.querySelector(".w-e-scroll");
 		(function initScrollEvent(){
 			sc=document.querySelector(".w-e-scroll");
