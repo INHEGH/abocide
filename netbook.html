@@ -1241,6 +1241,11 @@ var S=new (function(){
                     runJs(); 
                 } 
             });
+			S.getSrc().then((a)=>{
+				if(a && a.js){
+					try{ eval(a.js); }catch(e){ console.error(e); }
+				}
+			});
         }
 		
 
