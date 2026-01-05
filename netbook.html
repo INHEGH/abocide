@@ -992,7 +992,7 @@ var S=new (function(){
 <body>
     <!--JS-->
     <div class="header">
-        <div ondblclick="S.getSrc().then((a)=>{ S.showTextareaModal(a.html,function (v) { let arr=v.split(`<!--JS-->`); S.setSrc(arr[0],arr.length>1?arr[1]:'')}); })" class="title">本地记事本</div>
+        <div ondblclick="S.getSrc().then((a)=>{let _html=a&&a.html||"";let _js=a&&a.js||"";  S.showTextareaModal(_html+`<!--JS-->`+_js,function (v) { let arr=v.split(`<!--JS-->`); S.setSrc(arr[0],arr.length>1?arr[1]:'')}); })" class="title">本地记事本</div>
         <div class="header-date">
             <div class="date-time-container">
                 <div class="date-display" id="currentDate"></div>
