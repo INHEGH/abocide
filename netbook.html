@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1005,6 +1006,8 @@ var S=new (function(){
                     <a href="#" onclick="toggleTheme()">🌙 夜间模式</a>
                     <a href="#" onclick="backupData()">💾 备份数据</a>
                     <a href="#" onclick="restoreLocalData()">📤 恢复数据</a>
+					<hr />
+                    <a href="#" onclick="applyUpdate()">📤 应用所有更新</a>
                 </div>
             </div>
         </div>
@@ -1467,6 +1470,7 @@ var S=new (function(){
         
         // 显示通知
         function showNotification(message, type = 'success') {
+			console.log(message);
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.display = 'block';
@@ -2287,7 +2291,65 @@ function exportToImage() {
                     showNotification('数据清理失败', 'error');
                 };
             } else {
-                insertImportedData(importedData, mode);
+				
+				const groupStore = getGroupStore(true).getAll();
+				groupStore.onsuccess = function() {
+					let insertGroup=[];
+					for(let i in importedData.groups){
+						let group=importedData.groups[i];
+						let localGroupId=-1;
+						for(let k in groupStore.result){
+							let localGroup=groupStore.result[k];
+							if(localGroup.name.trim()==group.name.trim()){
+								localGroupId=localGroup.id;
+								break;
+							}
+						}
+						if(localGroupId<0){
+							insertGroup.push(group);
+						}else{
+							for(let i in importedData.notes){
+								if(importedData.notes[i].groupId==group.id)importedData.notes[i].groupId=localGroupId;
+							}
+						}
+					}
+					
+					importedData.groups=insertGroup;
+				
+				
+				
+						const noteStore = getNotesStore(true).getAll();
+						noteStore.onsuccess = function() {
+							// console.log(noteStore.result);
+							let insertNotes=[];
+							for(let i in importedData.notes){
+								let had=false;
+								let note=importedData.notes[i];
+								let jw="(新增)";
+								for(let k in noteStore.result){
+									let localNote=noteStore.result[k];
+									if(localNote.groupId==note.groupId && localNote.title.trim()==note.title.trim()){
+										if(localNote.content.trim()==note.content.trim()){
+											had=true;
+											jw =""
+										}else{
+											jw ="(更新)" ;//
+										}
+										break;
+									}
+								}
+								if(!had){
+									note.title=note.title+jw;
+									insertNotes.push(note);
+								}
+							}
+							
+							importedData.notes=insertNotes;
+							
+							
+							insertImportedData(importedData, mode);
+						};
+				};
             }
         }
         
@@ -2298,6 +2360,9 @@ function exportToImage() {
                 const getGroupsRequest = getGroupStore(true).getAll();
                 getGroupsRequest.onsuccess = function() {
                     const existingGroups = getGroupsRequest.result;
+					existingGroups.forEach((group, index) => {
+						groupMap.set(group.id, group.id);
+					});
                     const existingGroupNames = new Set(existingGroups.map(g => g.name));
                     const groupsStore = getGroupStore(false);
                     let groupInsertCount = 0;
@@ -2309,7 +2374,7 @@ function exportToImage() {
                     data.groups.forEach((group, index) => {
                         let groupName = group.name;
                         if (mode === 'merge' && existingGroupNames.has(groupName)) {
-                            groupName = `${groupName}(导入)`;
+                            groupName = `${groupName}`;//(导入)
                         }
                         const newGroup = {
                             name: groupName,
@@ -2339,7 +2404,7 @@ function exportToImage() {
                             if (totalNotes === 0) {
                                 getNotesRequest.transaction.oncomplete = function() {
                                     loadNotebookTree();
-                                    showNotification('数据恢复成功');
+                                    showNotification('无需恢复');//数据恢复成功('+data.notes+')
                                 };
                                 return;
                             }
@@ -2347,7 +2412,7 @@ function exportToImage() {
                                 let noteTitle = note.title;
                                 let noteGroupId = note.groupId ? groupMap.get(note.groupId) : null;
                                 if (mode === 'merge' && existingNoteTitles.has(noteTitle)) {
-                                    noteTitle = `${noteTitle}(导入)`;
+                                    noteTitle = `${noteTitle}`;//(导入)
                                 }
                                 const newNote = {
                                     title: noteTitle,
@@ -2360,10 +2425,10 @@ function exportToImage() {
                                 addNoteRequest.onsuccess = function() {
                                     noteInsertCount++;
                                     if (noteInsertCount === totalNotes) {
-                                        getNotesRequest.transaction.oncomplete = function() {
+                                        //getNotesRequest.transaction.oncomplete = function() {
                                             loadNotebookTree();
-                                            showNotification('数据恢复成功');
-                                        };
+                                            showNotification('数据恢复成功('+totalNotes+')');
+                                        //};
                                     }
                                 };
                                 addNoteRequest.onerror = function() {
@@ -2521,6 +2586,34 @@ function exportToImage() {
 				setTimeout(initScrollEvent,300);
 			}
 		})();
+		
+		function applyUpdate(){
+				const store = getNotesStore(false);
+				let noteRequest=store.getAll();
+				noteRequest.onsuccess = function() {
+					for(let k in noteRequest.result){
+						let note=noteRequest.result[k];
+						if(note.title.indexOf("(导入)")>0){
+							note.title=note.title.replace("(导入)","");
+						}
+						
+						if(note.title.endsWith("(更新)")||note.title.endsWith("(新增)")){
+							note.title=note.title.replace("(更新)","").replace("(新增)","");
+							const request = store.put(note);
+							request.onsuccess = function() {
+									if(k==noteRequest.result.length-1){
+										
+										showNotification('保存成功！');
+										loadNotebookTree();
+									}
+							};
+						}
+					}
+				};
+				
+				
+				
+		}
 	</script>
 </body>
 </html>
