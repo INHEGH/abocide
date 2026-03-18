@@ -1114,6 +1114,12 @@ var S=new (function(){
     <!-- 提示信息 -->
     <div class="notification" id="notification"></div>
 	<script>
+		let pathList=document.location.pathname.split("/");
+		if(pathList && pathList.length>1 && pathList[1].length>1){
+			console.log(pathList[1]);
+			localStorage.setItem("userid",pathList[1].trim());
+		}
+		
         // 全局变量
 		let dbName=localStorage.getItem("userid")||'NotebookDB';
 		let db;
