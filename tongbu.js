@@ -153,15 +153,15 @@ function createRestoreDialog(dataList) {
   dialogDiv.id = 'restore-dialog';
   dialogDiv.style.cssText = `
     position: fixed;
-    top: 50%;
-    left: 50%;
+    top: 50vh;
+    left: 50vw;
     transform: translate(-50%, -50%);
     background: white;
     border: 1px solid #ccc;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 10000;
     padding: 20px;
-    min-width: 400px;
+    min-width: 300px;
   `;
 
   // 创建表格
