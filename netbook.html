@@ -466,12 +466,14 @@ var S=new (function(){
             flex-direction: column;
             transition: all 0.3s ease;
             position: relative;
+			min-width: 170px;
         }
         .nav-hidden .nav-container {
             width: 0;
             border-right: none;
             overflow: hidden;
             padding: 0;
+			min-width: 0px;
         }
         .nav-header {
             padding: 15px;
@@ -698,6 +700,7 @@ var S=new (function(){
             font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
             font-size: 14px;
             line-height: 1.5;
+			max-width: 80vw;
         }
         .dark-mode .w-e-text-container [data-slate-editor] pre code {
             background-color: #1e1e1e;
